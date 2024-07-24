@@ -36,69 +36,50 @@
 //   Date:           2024
 //-----------------------------------------------------------------
 
-#ifndef RECORDINGPLUGIN_SOUNDDATA_H
-#define RECORDINGPLUGIN_SOUNDDATA_H
+#include "Recording/RecorderManager.h"
+#include "catch2/catch_test_macros.hpp"
+#include "catch2/catch_all.hpp"
+#include "../Utils/Utils.h"
 
-#include "Recording/BaseStructure/RecordedIdData.h"
-#include "DebugLog.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/quaternion.hpp"
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/quaternion.hpp"
+#include <filesystem>
 #include <iostream>
+#include <chrono>
+#include <random>
 
-struct SoundDTO{
-    int id;
-    float t;
-    float s_t;
-    float e_t;
-    int s_n;
-    int s_i;
-    int s_r;
-    int c_n;
-    int c_go_id;
-    float s_d[4800];
-    int layer;
+std::string recording_dir = std::filesystem::current_path().string() + "/";
+std::string recording_file = "test";
 
-    std::string static dto_layout(){
-        return "SoundDTO: int id;float t;float s_t;float e_t;int s_n;int s_i;int s_r;int c_n;int c_go_id;float s_d[4800];int layer = 0;";
-    }
-};
+int transform_buffer_size = 1000;
+int sound_buffer_size = 100;
+int replay_buffer_num = 3;
+float replay_buffer_interval = 10.0f;
+int recording_duration = 100;
+int stop_time = 15;
+int transform_count = 20;
+int recording_steps_per_second = 10;
 
-class SoundData : public RecordableData{
-public:
-    float start_time = -1.0f;
-    float end_time = -1.0f;
-    int sample_num = -1;
-    int start_index = 0;
-    int sampling_rate = -1;
-    int channel_num = -1;
-    int corresponding_gameobject_id;
-    // assuming that at a sampling rate of at most 48.000 we record with at least 10 steps per second
-    float sound_data [4800];
+bool forward = true;
+bool reverse = true;
+bool random = true;
 
-    SoundData() = default;
-
-    SoundData(SoundDTO const& dto);
-
-    SoundData(int i, float t, int s_n, int s_i, int s_r, int c_n, int c_go_id, float* data);
-
-    SoundData(std::shared_ptr<SoundData> data);
-
-    ~SoundData() override;
-
-    std::ofstream& write(std::ofstream& ofs) const override;
-
-    std::ifstream& read(std::ifstream& ifs) override;
-
-    SoundData interpolate(SoundData next_sound, float time);
-
-    SoundData interpolate(std::shared_ptr<SoundData> next_sound, float time);
-
-    void write_to_stream(std::ofstream& file) const override;
-
-    SoundDTO to_dto() const;
-};
+bool first = true;
 
 
-#endif //RECORDINGPLUGIN_SOUNDDATA_H
+int main(int argc, char *argv[]) {
+    //RecorderManager &manager = RecorderManager::getInstance();
+    //manager.set_debug_mode(0,true);
+
+    //void export_sound_data_to_WAV(std::string const& sound_file_path);
+
+    std::string base_path (argv[1]);
+    std::cout << "Will search for audio files for conversion in directory: " << base_path << std::endl;
+
+     
+    //std::string sound_file_path = "./aplausemr_group7_date20240715_15_09_trial1_participant1_sound.txt";
+    //std::string sound_file_path = "Z:/Gary/Research/APlausE - MR_MR4_CollaborativeTelepresenceStudy/unityRecordings/excluded/group7/interrupted/aplausemr_group7_date20240715_15_00_trial1_participant1_sound.txt";
+    //Utils::export_sound_data_to_WAV(sound_file_path);
+
+    return 0;
+}
+
+

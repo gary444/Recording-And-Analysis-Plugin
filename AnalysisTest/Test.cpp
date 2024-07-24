@@ -55,6 +55,8 @@ using std::chrono::milliseconds;
 #include <iostream>
 
 
+/*
+
 void collaboration_analysis() {
     std::vector<std::string> files;
     std::string directory = "C:\\Users\\Admin\\CLionProjects\\UnityRecordingPlugin\\cmake-build-debug\\";
@@ -258,8 +260,9 @@ void single_user_analysis() {
     //manager.add_sound_activation_analysis_request(0, microphone_audio, temporal_search_interval, sound_level);
 
 }
+*/
 
 int main() {
-    collaboration_analysis();
+    //collaboration_analysis();
     return 0;
 }

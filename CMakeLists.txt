@@ -7,6 +7,7 @@ set(UnityDir Unity)
 set(SrcDir Src)
 set(ExternalDir External)
 set(TestDir Test)
+set(ConvertDir Convert)
 set(AnalysisTestDir AnalysisTest)
 set(UtilsDir Utils)
 
@@ -50,6 +51,19 @@ file(GLOB_RECURSE TEST_FILES
         External/ThreadPool/*.hpp
         )
 
+file(GLOB_RECURSE CONVERT_FILES
+        ${SrcDir}/*.h.in
+        ${SrcDir}/*.cpp
+        ${SrcDir}/*.h
+        ${UnityDir}/*.cpp
+        ${UnityDir}/*.h
+        ${ConvertDir}/Convert.cpp
+        ${UtilsDir}/*.cpp
+        ${UtilsDir}/*.h
+        External/AudioFile/*.h
+        External/ThreadPool/*.hpp
+        )
+
 file(GLOB_RECURSE ANALYSIS_TEST_FILES
         ${SrcDir}/*.h.in
         ${SrcDir}/*.cpp
@@ -76,6 +90,9 @@ if(NOT ANDROID_BUILD)
 
     add_executable(tests ${TEST_FILES})
     target_link_libraries(tests ${TEST_LIBRARIES})
+
+    add_executable(convert ${CONVERT_FILES})
+    target_link_libraries(convert ${TEST_LIBRARIES})
 
     add_executable(analysis_tests ${ANALYSIS_TEST_FILES})
     target_link_libraries(analysis_tests ${TEST_LIBRARIES})
