@@ -130,8 +130,12 @@ void Utils::export_generic_data_to_CSV(const std::string &generic_file_path) {
     record_file.close();
 }
 
-void Utils::export_sound_data_to_WAV(std::string const& sound_file_path) {
+void Utils::export_sound_data_to_WAV(std::string const& sound_file_path, std::string out_sound_file_basepath) {
     Debug::Log("Writing sound data to WAV file");
+
+    if ("" == out_sound_file_basepath) {
+        out_sound_file_basepath = sound_file_path;
+    }
 
     std::string sound_data_file = sound_file_path;
     //std::set<int> sound_ids = current_recording.meta_information.get_sound_ids();
@@ -529,7 +533,7 @@ void Utils::export_sound_data_to_WAV(std::string const& sound_file_path) {
             Debug::Log("Could not set the audio buffer for the WAV file creation!", Color::Red);
         }
 
-        audioFile.save(sound_file_path + "_" + std::to_string(j) + ".wav");
+        audioFile.save(out_sound_file_basepath + "_" + std::to_string(j) + ".wav");
         Debug::Log("WAV file for sound origin " + std::to_string(j) + " was created");
 
         buffer.clear();
