@@ -421,22 +421,50 @@ void Utils::export_sound_data_to_WAV(std::string const& sound_file_path, std::st
     record_file.seekg(0, std::ifstream::beg);
 
     std::set<int> sound_origins;
+    std::set<int> sound_origin_gos;
     std::vector<int> sound_chunk_count(100, 0);
+
+    // calculate recording end from sound chunks with ID > 0
+    // to recording issue for sound origin 0
+    float recording_end = 0;
 
     for (unsigned long i = 0; i < size; i++) {
         record_file.read((char *) &current_data, sizeof(SoundDTO));
         sound_origins.insert(current_data.id);
+        sound_origin_gos.insert(current_data.c_go_id);
         if(current_data.id >= sound_chunk_count.size()){
             Debug::Log("Error! Sound data seems to be corrupted! Detected sound with id: " + std::to_string(current_data.id), Color::Red);
             record_file.close();
             return;
         }
+
+        if (current_data.id > 0) {
+            recording_end = std::max(recording_end, current_data.e_t);
+        }
+
         sound_chunk_count[current_data.id] += 1;
     }
 
+    std::cout << "Calculated recording end time: " << recording_end << std::endl;
+
     Debug::Log("Detected " + std::to_string(sound_origins.size()) + " different audio sources.");
+    for (auto so : sound_origins) {
+        std::cout << "Sound origin id " << so << std::endl;
+    }
+
+    for (size_t i = 0; i < sound_origins.size(); i++)
+    {
+        std::cout << "origin " << i << ", sound chunk count " << sound_chunk_count[i] << std::endl;
+    }
+
 
     for (auto j : sound_origins) {
+
+        // TODO remove
+        //if (0 != j) {
+        //    continue;
+        //}
+
         AudioFile<float> audioFile;
         AudioFile<float>::AudioBuffer buffer;
 
@@ -450,6 +478,15 @@ void Utils::export_sound_data_to_WAV(std::string const& sound_file_path, std::st
 
         for (unsigned long i = 0; i < size; i++) {
             record_file.read((char *) &current_data, sizeof(SoundDTO));
+
+            //std::cout << current_data.to_string() << std::endl;
+            
+            // fix: skip packets from sound origin 0 with start time > recording length
+            if (0 == current_data.id && current_data.s_t > recording_end) {
+                continue;
+            }
+
+
             if (current_data.id == j) {
                 if(current_data.s_r > 0 && current_data.c_n > 0) {
                     total_size += current_data.s_n;
@@ -485,6 +522,12 @@ void Utils::export_sound_data_to_WAV(std::string const& sound_file_path, std::st
         std::ofstream write_file{sound_data_file + std::to_string(j), std::ios_base::app | std::ios_base::out | std::ios::binary};
         for (unsigned long i = 0; i < size; i++) {
             record_file.read((char *) &current_data, sizeof(SoundDTO));
+
+            // fix: skip packets from sound origin 0 with start time > recording length
+            if (0 == current_data.id && current_data.s_t > recording_end) {
+                continue;
+            }
+
             if (current_data.id == j) {
                 sound_buffer.push_back(current_data);
 

@@ -46,6 +46,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/quaternion.hpp"
 #include <iostream>
+#include <iomanip>
 
 struct SoundDTO{
     int id;
@@ -62,6 +63,21 @@ struct SoundDTO{
 
     std::string static dto_layout(){
         return "SoundDTO: int id;float t;float s_t;float e_t;int s_n;int s_i;int s_r;int c_n;int c_go_id;float s_d[4800];int layer = 0;";
+    }
+
+    std::string to_string() const {
+        std::stringstream ss;
+        ss << "SoundDTO: ";
+        ss << "id: " << id << " | ";
+        ss << "s_n: " << s_n << " | ";
+        ss << "s_i: " << s_i << " | ";
+        ss << "s_r: " << s_r << " | ";
+        ss << "c_n: " << c_n << " | ";
+        ss << "layer: " << layer << " | ";
+        ss << "c_go_id: " << std::fixed << std::setprecision(5) << c_go_id << " | ";
+        ss << "st: " << std::fixed << std::setprecision(3) << s_t << " | ";
+        ss << "et: " << e_t << " | ";
+        return ss.str();
     }
 };
 
