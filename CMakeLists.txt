@@ -64,6 +64,19 @@ file(GLOB_RECURSE CONVERT_FILES
         External/ThreadPool/*.hpp
         )
 
+file(GLOB_RECURSE CONVERT_BATCH_FILES
+        ${SrcDir}/*.h.in
+        ${SrcDir}/*.cpp
+        ${SrcDir}/*.h
+        ${UnityDir}/*.cpp
+        ${UnityDir}/*.h
+        ${ConvertDir}/ConvertBatch.cpp
+        ${UtilsDir}/*.cpp
+        ${UtilsDir}/*.h
+        External/AudioFile/*.h
+        External/ThreadPool/*.hpp
+        )
+
 file(GLOB_RECURSE ANALYSIS_TEST_FILES
         ${SrcDir}/*.h.in
         ${SrcDir}/*.cpp
@@ -90,6 +103,10 @@ if(NOT ANDROID_BUILD)
 
     add_executable(tests ${TEST_FILES})
     target_link_libraries(tests ${TEST_LIBRARIES})
+
+    
+    add_executable(convertBatch ${CONVERT_BATCH_FILES})
+    target_link_libraries(convertBatch ${TEST_LIBRARIES})
 
     add_executable(convert ${CONVERT_FILES})
     target_link_libraries(convert ${TEST_LIBRARIES})
