@@ -9,6 +9,7 @@ set(ExternalDir External)
 set(TestDir Test)
 set(ConvertDir Convert)
 set(AnalysisTestDir AnalysisTest)
+set(AnalysisDir Analysis)
 set(UtilsDir Utils)
 
 configure_file(Config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/${SrcDir}/Config.h @ONLY)
@@ -89,6 +90,19 @@ file(GLOB_RECURSE ANALYSIS_TEST_FILES
         External/ThreadPool/*.hpp
         )
 
+
+file(GLOB_RECURSE GAZE_ANALYSIS_FILES
+        ${SrcDir}/*.h.in
+        ${SrcDir}/*.cpp
+        ${SrcDir}/*.h
+        ${UnityDir}/*.cpp
+        ${UnityDir}/*.h
+        ${AnalysisDir}/*.cpp
+        ${AnalysisDir}/*.h
+        External/AudioFile/*.h
+        External/ThreadPool/*.hpp
+        )
+
 include_directories(${SrcDir} ${UnityDir})
 
 add_subdirectory(External/glm EXCLUDE_FROM_ALL)
@@ -113,6 +127,9 @@ if(NOT ANDROID_BUILD)
 
     add_executable(analysis_tests ${ANALYSIS_TEST_FILES})
     target_link_libraries(analysis_tests ${TEST_LIBRARIES})
+
+    add_executable(gaze_analysis ${GAZE_ANALYSIS_FILES})
+    target_link_libraries(gaze_analysis ${TEST_LIBRARIES})
 endif()
 
 set(COMMON_LIBRARIES PRIVATE glm zlibstatic)
