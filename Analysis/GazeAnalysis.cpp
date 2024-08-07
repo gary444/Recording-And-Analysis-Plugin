@@ -100,9 +100,9 @@ void gaze_analysis(std::string rec_file) {
     // TODO not sure what to use as the first argument here
 
 
-    //manager.add_interval_analysis_request(0, gaze_request_1, 0);
-    manager.add_interval_analysis_request(0, gaze_request_2, 0);
-    //manager.add_interval_analysis_request(2, gaze_request_3, 0);
+    //manager.add_interval_analysis_request(gaze_request_1);
+    manager.add_interval_analysis_request(gaze_request_2);
+    //manager.add_interval_analysis_request(gaze_request_3);
 
     manager.process_interval_analysis_requests_for_all_files();
 

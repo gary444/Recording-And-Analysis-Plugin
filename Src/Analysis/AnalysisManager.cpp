@@ -1,111 +1,12 @@
-// VRSYS plugin of Virtual Reality and Visualization Group (Bauhaus-University Weimar)
-//  _    ______  _______  _______
-// | |  / / __ \/ ___/\ \/ / ___/
-// | | / / /_/ /\__ \  \  /\__ \
-// | |/ / _, _/___/ /  / /___/ /
-// |___/_/ |_|/____/  /_//____/
 //
-//  __                            __                       __   __   __    ___ .  . ___
-// |__)  /\  |  | |__|  /\  |  | /__`    |  | |\ | | \  / |__  |__) /__` |  |   /\   |
-// |__) /~~\ \__/ |  | /~~\ \__/ .__/    \__/ | \| |  \/  |___ |  \ .__/ |  |  /~~\  |
+// Created by Anton-Lammert on 13.12.2022.
 //
-//       ___               __
-// |  | |__  |  |\/|  /\  |__)
-// |/\| |___ |  |  | /~~\ |  \
-//
-// Copyright (c) 2024 Virtual Reality and Visualization Group
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-//-----------------------------------------------------------------
-//   Authors:        Anton Lammert
-//   Date:           2024
-//-----------------------------------------------------------------
 #include "AnalysisManager.h"
 #include "Analysis/IntervalAnalysis/TransformAnalysis/IntervalPositionAdjustmentAnalysisRequest.h"
 
-void AnalysisManager::add_interval_analysis_request(int analysis_id, std::shared_ptr<IntervalAnalysisRequest> request, int logical_operation) {
-    if(interval_analysis_queries.size() > analysis_id){
-        if(interval_analysis_queries[analysis_id].get() == nullptr){
-            switch(logical_operation) {
-                case 0: {
-                    interval_analysis_queries[analysis_id] = request;
-                    break;
-                }
-                case 1: {
-                    interval_analysis_queries[analysis_id] = request;
-                    break;
-                }
-                case 2: {
-                    interval_analysis_queries[analysis_id] = !request;
-                    break;
-                }
-                case 3: {
-                    interval_analysis_queries[analysis_id] = !request;
-                    break;
-                }
-            }
-        } else {
-            switch(logical_operation){
-                case 0:{
-                    interval_analysis_queries[analysis_id] = interval_analysis_queries[analysis_id] & request;
-                    break;
-                }
-                case 1:{
-                    interval_analysis_queries[analysis_id] = interval_analysis_queries[analysis_id] | request;
-                    break;
-                }
-                case 2:{
-                    interval_analysis_queries[analysis_id] = interval_analysis_queries[analysis_id] & (!request);
-                    break;
-                }
-                case 3:{
-                    interval_analysis_queries[analysis_id] = interval_analysis_queries[analysis_id] | (!request);
-                    break;
-                }
-            }
-        }
-    } else {
-        int tmp = interval_analysis_queries.size();
-        for (int i = tmp - 1; i < analysis_id; ++i) {
-            if (i != analysis_id - 1)
-                interval_analysis_queries.push_back(nullptr);
-            else {
-                switch (logical_operation) {
-                    case 0: {
-                        interval_analysis_queries.push_back(request);
-                        break;
-                    }
-                    case 1: {
-                        interval_analysis_queries.push_back(request);
-                        break;
-                    }
-                    case 2: {
-                        interval_analysis_queries.push_back(!request);
-                        break;
-                    }
-                    case 3: {
-                        interval_analysis_queries.push_back(!request);
-                        break;
-                    }
-                }
-            }
-        }
-    }
+void AnalysisManager::add_interval_analysis_request(std::shared_ptr<IntervalAnalysisRequest> request) {
+    interval_analysis_queries.push_back(request);
 }
 
 int AnalysisManager::process_interval_analysis_request(std::shared_ptr<IntervalAnalysisRequest> analysis_request,
@@ -286,7 +187,8 @@ int AnalysisManager::process_interval_analysis_requests_for_all_files() {
         if (intervals_of_interest.count(file) != 0) {
             intervals_to_investigate = intervals_of_interest[file];
         }
-        getThreadPool().submit_task([this, &file, &meta_information, &intervals_to_investigate]{this->process_interval_analysis_requests_for_file(file, meta_information,intervals_to_investigate);});
+        getThreadPool().push_task(&AnalysisManager::process_interval_analysis_requests_for_file, this, file,
+                                  meta_information, intervals_to_investigate);
     }
 
     return 1;
@@ -296,9 +198,9 @@ int AnalysisManager::process_interval_analysis_requests_for_primary_file(int ana
                                                                          std::vector<TimeInterval> intervals_of_interest) {
     if (recording_file_paths.empty())
         return -1;
-    if(interval_analysis_queries.size() > analysis_id && analysis_id >= 0)
-        return process_interval_analysis_request(interval_analysis_queries[analysis_id], intervals, recording_file_paths.front(), intervals_of_interest);
-    return -1;
+    return process_interval_analysis_request(interval_analysis_queries[analysis_id], intervals,
+                                             recording_file_paths.front(),
+                                             intervals_of_interest);
 }
 
 std::string AnalysisManager::get_primary_file() const {
@@ -460,8 +362,8 @@ int AnalysisManager::process_quantitative_analysis_requests_for_all_files() {
         if (intervals_of_interest.count(file) != 0) {
             intervals_to_investigate = intervals_of_interest[file];
         }
-        getThreadPool().submit_task([this, &file, &meta_information, &intervals_to_investigate]{this->process_quantitative_analysis_requests_for_file(file,
-                                  meta_information, intervals_to_investigate);});
+        getThreadPool().push_task(&AnalysisManager::process_quantitative_analysis_requests_for_file, this, file,
+                                  meta_information, intervals_to_investigate);
     }
 
     return 0;
