@@ -115,6 +115,7 @@ void IntervalGazeAnalysisRequest::set_id_b(int new_id) {
 
 void
 IntervalGazeAnalysisRequest::update_parameters(MetaInformation &original_meta_file, MetaInformation &new_meta_file) {
+
     id_a = new_meta_file.get_old_uuid(original_meta_file.get_object_name(id_a));
     id_b = new_meta_file.get_old_uuid(original_meta_file.get_object_name(id_b));
 }

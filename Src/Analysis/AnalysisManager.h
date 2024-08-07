@@ -14,7 +14,8 @@
 #include "Analysis/IntervalAnalysis/TransformAnalysis/IntervalTransformAnalysisRequest.h"
 #include "Analysis/IntervalAnalysis/SoundAnalysis/IntervalSoundAnalysisRequest.h"
 #include "Recording/MetaInformation.h"
-#include "../../External/ThreadPool/BS_thread_pool.hpp"
+//#include "../../External/ThreadPool/BS_thread_pool.hpp"
+#include "../../External/thread-pool/include/BS_thread_pool.hpp"
 #include "Analysis/QuantitativeAnalysis/QuantitativeAnalysisRequest.h"
 #include <vector>
 #include <set>
@@ -47,7 +48,7 @@ public:
 
     int process_interval_analysis_requests_for_all_files();
 
-    void process_interval_analysis_requests_for_file(std::string const& file, MetaInformation& meta_information, std::vector<TimeInterval> const& intervals_of_interest) const;
+    void process_interval_analysis_requests_for_file(std::string const& file, /*MetaInformation& meta_information, */ std::vector<TimeInterval> const& intervals_of_interest) const;
 
     int process_interval_analysis_requests_for_primary_file(int analysis_id, float* intervals, std::vector<TimeInterval> intervals_of_interest);
 
@@ -69,6 +70,7 @@ public:
 
     void clear_recording_paths();
 
+    void set_analysis_results_output_directory(const std::string& s);
 private:
     bool debug = false;
 
@@ -76,6 +78,7 @@ private:
     std::vector<std::shared_ptr<QuantitativeAnalysisRequest>> quantitative_analysis_queries;
     std::vector<std::string> recording_file_paths;
     std::map<std::string, std::vector<TimeInterval>> intervals_of_interest;
+    std::string analysis_results_output_directory = "";
 
     static BS::thread_pool& getThreadPool(){
         static BS::thread_pool thread_pool(16);

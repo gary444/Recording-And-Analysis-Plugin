@@ -73,25 +73,14 @@ int AnalysisManager::process_interval_analysis_request(std::shared_ptr<IntervalA
         std::cout << "----------------------------------------\n";
     }
 
-    std::vector<TimeInterval> relevant_and_combined_intervals;
-    for (auto &interval: time_intervals) {
-        if (!intervals_to_investigate.empty()) {
-            for (auto const &interval_of_interest: intervals_to_investigate) {
-                if (interval_of_interest.contains(interval))
-                    relevant_and_combined_intervals.push_back(interval_of_interest && interval);
-            }
-        } else {
-            relevant_and_combined_intervals.push_back(interval);
-        }
-    }
 
     int i = 0;
-    for (auto &relevant_and_combined_interval: relevant_and_combined_intervals) {
-        intervals[i] = relevant_and_combined_interval.start;
-        intervals[i + 1] = relevant_and_combined_interval.end;
+    for (auto &interval: time_intervals) {
+        intervals[i] = interval.start;
+        intervals[i + 1] = interval.end;
         i += 2;
     }
-    return relevant_and_combined_intervals.size();
+    return time_intervals.size();
 }
 
 AnalysisManager::AnalysisManager() {
@@ -181,14 +170,21 @@ int AnalysisManager::process_interval_analysis_requests_for_all_files() {
 
     MetaInformation meta_information{recording_file_paths.front() + ".recordmeta"};
 
+    std::cout << "on load: meta information: duration: " << meta_information.get_recording_duration() << std::endl;
+
+
     for (auto const &file: recording_file_paths) {
         //process_interval_analysis_requests_for_file(file, meta_information);
         std::vector<TimeInterval> intervals_to_investigate;
+
+
         if (intervals_of_interest.count(file) != 0) {
             intervals_to_investigate = intervals_of_interest[file];
         }
-        getThreadPool().push_task(&AnalysisManager::process_interval_analysis_requests_for_file, this, file,
-                                  meta_information, intervals_to_investigate);
+        getThreadPool().submit_task([this, &file, &meta_information, &intervals_to_investigate] {this->process_interval_analysis_requests_for_file(file, intervals_to_investigate); });
+        
+        //getThreadPool().push_task(&AnalysisManager::process_interval_analysis_requests_for_file, this, file,
+        //                          meta_information, intervals_to_investigate);
     }
 
     return 1;
@@ -208,9 +204,13 @@ std::string AnalysisManager::get_primary_file() const {
 }
 
 void
-AnalysisManager::process_interval_analysis_requests_for_file(std::string const &file, MetaInformation &meta_information,
+AnalysisManager::process_interval_analysis_requests_for_file(std::string const &file, /*MetaInformation& meta_information, */
                                                              std::vector<TimeInterval> const &intervals_of_interest) const {
     MetaInformation current_meta_information{file + ".recordmeta"};
+    MetaInformation meta_information{ recording_file_paths.front() + ".recordmeta" };
+
+    std::cout << "meta information: duration: " << meta_information.get_recording_duration() << std::endl;
+    std::cout << "current meta information: duration: " << current_meta_information.get_recording_duration() << std::endl;
 
     std::fstream out;
 
@@ -220,9 +220,15 @@ AnalysisManager::process_interval_analysis_requests_for_file(std::string const &
         file_only = file.substr(pos + 1);
 
     std::string primary_file = get_primary_file();
-    std::string path =
-            primary_file.substr(0, primary_file.find_last_of("\\")) + "\\" + file_only +
+    std::string path;
+    if ("" == analysis_results_output_directory){
+        path = primary_file.substr(0, primary_file.find_last_of("\\")) + "\\" + file_only +
             "_interval_requests_results.csv";
+    }
+    else {
+        path = analysis_results_output_directory + "\\" + file_only +
+            "_interval_requests_results.csv";
+    } 
     out.open(path, std::fstream::out);
     if (!out.good())
         return;
@@ -359,11 +365,16 @@ int AnalysisManager::process_quantitative_analysis_requests_for_all_files() {
     for (auto const &file: recording_file_paths) {
         //process_interval_analysis_requests_for_file(file, meta_information);
         std::vector<TimeInterval> intervals_to_investigate;
+
+
+
         if (intervals_of_interest.count(file) != 0) {
             intervals_to_investigate = intervals_of_interest[file];
         }
-        getThreadPool().push_task(&AnalysisManager::process_quantitative_analysis_requests_for_file, this, file,
-                                  meta_information, intervals_to_investigate);
+        //getThreadPool().push_task(&AnalysisManager::process_quantitative_analysis_requests_for_file, this, file,
+        //                          meta_information, intervals_to_investigate);
+        getThreadPool().submit_task([this, &file, &meta_information, &intervals_to_investigate] {this->process_quantitative_analysis_requests_for_file(file, meta_information,
+            intervals_to_investigate); });
     }
 
     return 0;
@@ -382,8 +393,15 @@ void AnalysisManager::process_quantitative_analysis_requests_for_file(const std:
         file_only = file.substr(pos + 1);
 
     std::string primary_file = get_primary_file();
-    std::string path = primary_file.substr(0, primary_file.find_last_of("\\")) + "\\" + file_only +
-                       "_quantitative_requests_results.csv";
+    std::string path;
+    if ("" == analysis_results_output_directory) {
+        path = primary_file.substr(0, primary_file.find_last_of("\\")) + "\\" + file_only +
+            "_quantitative_requests_results.csv";
+    }
+    else {
+        path = analysis_results_output_directory + "\\" + file_only +
+            "_quantitative_requests_results.csv";
+    }
     out.open(path, std::fstream::out);
     if (!out.good())
         return;
@@ -425,4 +443,9 @@ int AnalysisManager::process_quantitative_analysis_requests_for_primary_file(int
         return -1;
     return process_interval_analysis_request(interval_analysis_queries[analysis_id], values,
                                              recording_file_paths.front(), intervals_of_interest);
+}
+
+
+void AnalysisManager::set_analysis_results_output_directory(const std::string& s) {
+    analysis_results_output_directory = s;
 }
