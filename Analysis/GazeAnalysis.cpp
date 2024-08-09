@@ -60,6 +60,10 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
     //void gaze_analysis(std::string rec_file, const std::string& output_dir) {
 
     AnalysisManager& manager = AnalysisManager::getInstance();
+
+    //manager.clear_recording_paths();
+    //manager.clear_requests();
+
     manager.set_analysis_results_output_directory(output_dir);
 
     for (auto f : rec_files) {
@@ -90,25 +94,68 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
         std::cout << "UUID: " << participant_head_uuids[i] << std::endl;
     }
 
-
-    // TODO adjust cone size
+    //-------------------------------------------------------------------
+    // gaze interval queries 
+    //------------------------------------------------------------------- 
 
     float gaze_cone_height = 10.0f;
-    float gaze_cone_fov_angle = 60.0f;
-    float gaze_cone_angle = gaze_cone_fov_angle / 2.0f;
-    float gaze_cone_radius = std::tan(gaze_cone_angle * (3.14159f / 180.0f)) * gaze_cone_height;
+    float gaze_cone_fov_angle = 50.0f;
 
-    // note: add final argument to specify that forward direction is positive Z axis!
-    std::shared_ptr<IntervalGazeAnalysisRequest> gaze_request_1 = std::make_shared<IntervalGazeAnalysisRequest>(participant_head_uuids[0], participant_head_uuids[1], gaze_cone_fov_angle, gaze_cone_height, 1);
-    std::shared_ptr<IntervalGazeAnalysisRequest> gaze_request_2 = std::make_shared<IntervalGazeAnalysisRequest>(participant_head_uuids[0], participant_head_uuids[2], gaze_cone_fov_angle, gaze_cone_height, 1);
-    std::shared_ptr<IntervalGazeAnalysisRequest> gaze_request_3 = std::make_shared<IntervalGazeAnalysisRequest>(participant_head_uuids[0], participant_head_uuids[3], gaze_cone_fov_angle, gaze_cone_height, 1);
+    /*
+    for (size_t i = 0; i < 4; i++)
+    {
+        for (size_t j = 0; j < 4; j++)
+        {
+            if (j != i) {
 
-    manager.add_interval_analysis_request(gaze_request_1);
-    manager.add_interval_analysis_request(gaze_request_2);
-    manager.add_interval_analysis_request(gaze_request_3);
+                // note: add final argument to specify that forward direction is positive Z axis!
+                std::shared_ptr<IntervalGazeAnalysisRequest> gaze_request = std::make_shared<IntervalGazeAnalysisRequest>(participant_head_uuids[i], participant_head_uuids[j], gaze_cone_fov_angle, gaze_cone_height, 1);
 
+                manager.add_interval_analysis_request(gaze_request);
+            }
+        }
+    }
     manager.process_interval_analysis_requests_for_all_files();
+    */
 
+
+    //-------------------------------------------------------------------
+    // quantitative head rotation queries 
+    //------------------------------------------------------------------- 
+
+
+    float rotation_analysis_sampling_rate = 10.f;
+
+    for (size_t i = 0; i < 4; i++)
+    {
+        std::shared_ptr<QuantitativeTransformAnalysisRequest> quantitative_rotation_request = std::make_shared<QuantitativeRotationAnalysisRequest>(participant_head_uuids[i], rotation_analysis_sampling_rate);
+        manager.add_quantitative_analysis_request(quantitative_rotation_request);
+
+    }
+
+
+
+
+    //-------------------------------------------------------------------
+    // quantitative gaze queries 
+    //------------------------------------------------------------------- 
+
+    for (size_t i = 0; i < 4; i++)
+    {
+        for (size_t j = 0; j < 4; j++)
+        {
+            if (j != i) {
+
+                // note: add final argument to specify that forward direction is positive Z axis!
+                //std::shared_ptr<IntervalGazeAnalysisRequest> gaze_request = std::make_shared<IntervalGazeAnalysisRequest>(participant_head_uuids[i], participant_head_uuids[j], gaze_cone_fov_angle, gaze_cone_height, 1);
+                std::shared_ptr<QuantitativeTransformAnalysisRequest> gaze_request = std::make_shared<QuantitativeGazeAnalysisRequest>(participant_head_uuids[i], participant_head_uuids[j], rotation_analysis_sampling_rate);
+
+                manager.add_quantitative_analysis_request(gaze_request);
+            }
+        }
+    }
+
+    manager.process_quantitative_analysis_requests_for_all_files();
 
 
 }
@@ -149,6 +196,9 @@ int main(int argc, char* argv[]) {
 
         int dirs_searched = 0;
 
+        std::vector<std::string> all_rec_files;
+
+
         for (const auto& entry : fs::directory_iterator(directory)) {
             if (fs::is_directory(entry.status())) {
                 std::cout << "Processing: " << entry.path().filename().string() << std::endl;
@@ -156,7 +206,7 @@ int main(int argc, char* argv[]) {
 
                 // find recording files inside subdirectory 
                 fs::path subdir = entry.path();
-                std::vector<std::string> rec_files_from_group;
+                //std::vector<std::string> rec_files_from_group;
 
                 for (const auto& subd_entry : fs::directory_iterator(subdir)) {
 
@@ -168,32 +218,45 @@ int main(int argc, char* argv[]) {
                         fs::path p = subd_entry.path();
                         std::cout << "Found recording file" << p.replace_extension().string() << std::endl;
 
-                        rec_files_from_group.push_back(p.replace_extension().string());
+                        all_rec_files.push_back(p.replace_extension().string());
+                        //rec_files_from_group.push_back(p.replace_extension().string());
+
+                        // TODO remove 
+                        //break;
                     }
                 }
 
-                if (0 != rec_files_from_group.size()) {
+                //if (0 != rec_files_from_group.size()) {
                     // create subdirectory in output dir
-                    fs::path out_subdirectory = out_directory / entry.path().filename();
-                    if (!fs::exists(out_subdirectory)) {
-                        if (!fs::create_directory(out_subdirectory)) {
-                            std::cerr << "Failed to create output subdirectory." << std::endl;
-                            return 1;
-                        }
-                    }
+                    //fs::path out_subdirectory = out_directory / entry.path().filename();
+                    //if (!fs::exists(out_subdirectory)) {
+                    //    if (!fs::create_directory(out_subdirectory)) {
+                    //        std::cerr << "Failed to create output subdirectory." << std::endl;
+                    //        return 1;
+                    //    }
+                    //}
 
-                    gaze_analysis(rec_files_from_group, out_subdirectory.string());
+                    //gaze_analysis(rec_files_from_group, out_directory.string());
+                    
 
-                    // TODO remove 
-                    break;
 
+                //}
+
+                ++dirs_searched;
+
+
+                if (dirs_searched == 5) {
+                    //break;
                 }
+
+
 
             }
 
 
-
         }
+        gaze_analysis(all_rec_files, out_directory.string());
+
     }
     catch (const fs::filesystem_error& e) {
         std::cerr << "Filesystem error: " << e.what() << std::endl;

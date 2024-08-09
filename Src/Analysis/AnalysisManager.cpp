@@ -204,7 +204,7 @@ std::string AnalysisManager::get_primary_file() const {
 }
 
 void
-AnalysisManager::process_interval_analysis_requests_for_file(std::string const &file, /*MetaInformation& meta_information, */
+AnalysisManager::process_interval_analysis_requests_for_file(std::string const file, /*MetaInformation& meta_information, */
                                                              std::vector<TimeInterval> const &intervals_of_interest) const {
     MetaInformation current_meta_information{file + ".recordmeta"};
     MetaInformation meta_information{ recording_file_paths.front() + ".recordmeta" };
@@ -221,14 +221,18 @@ AnalysisManager::process_interval_analysis_requests_for_file(std::string const &
 
     std::string primary_file = get_primary_file();
     std::string path;
-    if ("" == analysis_results_output_directory){
-        path = primary_file.substr(0, primary_file.find_last_of("\\")) + "\\" + file_only +
-            "_interval_requests_results.csv";
-    }
-    else {
+    //if ("" == analysis_results_output_directory){
+    //    path = primary_file.substr(0, primary_file.find_last_of("\\")) + "\\" + file_only +
+    //        "_interval_requests_results.csv";
+    //}
+    //else {
         path = analysis_results_output_directory + "\\" + file_only +
             "_interval_requests_results.csv";
-    } 
+    //} 
+    //path = file + "_interval_requests_results.csv";
+    //path = file_only + "_interval_requests_results.csv";
+
+
     out.open(path, std::fstream::out);
     if (!out.good())
         return;
@@ -338,20 +342,20 @@ int AnalysisManager::process_quantitative_analysis_request(std::shared_ptr<Quant
     result_values = analysis_request->get_result();
     int i = 0;
     for (auto &time_based_value: result_values) {
-        if (!intervals_to_investigate.empty()) {
-            for (auto const &interval_of_interest: intervals_to_investigate) {
-                if (interval_of_interest.contains(time_based_value.time)) {
-                    values[i] = time_based_value.time;
-                    // TODO: handle return of more return values
-                    values[i + 1] = time_based_value.values[0];
-                    i += 2;
-                }
-            }
-        } else {
+        //if (!intervals_to_investigate.empty()) {
+        //    for (auto const &interval_of_interest: intervals_to_investigate) {
+        //        if (interval_of_interest.contains(time_based_value.time)) {
+        //            values[i] = time_based_value.time;
+        //            // TODO: handle return of more return values
+        //            values[i + 1] = time_based_value.values[0];
+        //            i += 2;
+        //        }
+        //    }
+        //} else {
             values[i] = time_based_value.time;
             values[i + 1] = time_based_value.values[0];
             i += 2;
-        }
+        //}
     }
     return result_values.size();
 }
@@ -373,17 +377,19 @@ int AnalysisManager::process_quantitative_analysis_requests_for_all_files() {
         }
         //getThreadPool().push_task(&AnalysisManager::process_quantitative_analysis_requests_for_file, this, file,
         //                          meta_information, intervals_to_investigate);
-        getThreadPool().submit_task([this, &file, &meta_information, &intervals_to_investigate] {this->process_quantitative_analysis_requests_for_file(file, meta_information,
+        getThreadPool().submit_task([this, &file, &meta_information, &intervals_to_investigate] {this->process_quantitative_analysis_requests_for_file(file,
             intervals_to_investigate); });
     }
 
     return 0;
 }
 
-void AnalysisManager::process_quantitative_analysis_requests_for_file(const std::string &file,
-                                                                      MetaInformation &meta_information,
+void AnalysisManager::process_quantitative_analysis_requests_for_file(const std::string file,
+                                                                      //MetaInformation &meta_information,
                                                                       const std::vector<TimeInterval> &intervals_of_interest) const {
     MetaInformation current_meta_information{file + ".recordmeta"};
+    MetaInformation meta_information{ recording_file_paths.front() + ".recordmeta" };
+
 
     std::fstream out;
 
@@ -394,14 +400,18 @@ void AnalysisManager::process_quantitative_analysis_requests_for_file(const std:
 
     std::string primary_file = get_primary_file();
     std::string path;
-    if ("" == analysis_results_output_directory) {
-        path = primary_file.substr(0, primary_file.find_last_of("\\")) + "\\" + file_only +
-            "_quantitative_requests_results.csv";
-    }
-    else {
+    //if ("" == analysis_results_output_directory) {
+    //    path = primary_file.substr(0, primary_file.find_last_of("\\")) + "\\" + file_only +
+    //        "_quantitative_requests_results.csv";
+    //}
+    //else {
         path = analysis_results_output_directory + "\\" + file_only +
             "_quantitative_requests_results.csv";
-    }
+    //}
+    //path = file + "_quantitative_requests_results.csv";
+
+    //path = file_only + "_quantitative_requests_results.csv";
+
     out.open(path, std::fstream::out);
     if (!out.good())
         return;
@@ -415,7 +425,7 @@ void AnalysisManager::process_quantitative_analysis_requests_for_file(const std:
     }
 
     for (auto request: adapted_queries) {
-        float values[5000];
+        float values[10000];
         int value_count = process_quantitative_analysis_request(request, values, file, intervals_of_interest);
         std::cout << "Value count: " << value_count << "\n";
 

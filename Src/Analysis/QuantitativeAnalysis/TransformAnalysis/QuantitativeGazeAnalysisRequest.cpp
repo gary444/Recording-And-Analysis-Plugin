@@ -31,14 +31,20 @@ void QuantitativeGazeAnalysisRequest::process_request(std::shared_ptr<TransformD
     }
 
     if((t_data->id == id_a || t_data->id == id_b) && present_a && present_b && current_a.time >= current_b.time){
-       glm::vec3 dir = current_b.global_position - current_a.global_position;
-       glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), current_a.global_scale);
-       glm::mat4 translate = glm::translate(glm::identity<glm::mat4>(), current_a.global_position);
-       glm::mat4 rotate = glm::toMat4(current_a.global_rotation);
-       glm::mat4 TRS = translate * rotate * scale;
-       glm::vec4 local_pos = glm::inverse(TRS) * glm::vec4{current_b.global_position,1.0f};
+
        if(current_t - last_value_time > 1.0f/temporal_sampling_rate){
-           values.push_back(TimeBasedValue{current_t, {local_pos.x/local_pos.w,local_pos.y/local_pos.w,local_pos.z,local_pos.w}});
+
+           //glm::vec3 dir = current_b.global_position - current_a.global_position;
+           glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), current_a.global_scale);
+           glm::mat4 translate = glm::translate(glm::identity<glm::mat4>(), current_a.global_position);
+           glm::mat4 rotate = glm::toMat4(current_a.global_rotation);
+           glm::mat4 TRS = translate * rotate * scale;
+           glm::vec4 local_pos_b = glm::inverse(TRS) * glm::vec4{ current_b.global_position,1.0f };
+
+           float cos_a = glm::degrees( glm::acos(glm::dot(glm::vec3(0, 0, 1), glm::normalize(glm::vec3(local_pos_b))) ) );
+
+           values.push_back(TimeBasedValue{ current_t, {cos_a, 0, 0, 0} });
+           //values.push_back(TimeBasedValue{current_t, {local_pos.x/local_pos.w,local_pos.y/local_pos.w,local_pos.z,local_pos.w}});
            last_value_time = current_t;
        }
     }
