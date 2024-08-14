@@ -4,7 +4,7 @@
 
 2. Use the `gaze_analysis` app in the [Recording-And-Analaysis-Plugin](https://github.com/gary444/Recording-And-Analysis-Plugin) repo to extract relevant quantitative data based on the users head transforms (specifically, head rotation speed data and angular distance between forward vector of each participant and their colleagues). Usage: `.\gaze_analysis.exe {DATA_ROOT}/unityRecordings {DATA_ROOT}/gazeAnalysis`
 
-3. Use the `GazeClassificationPostProcessing` jupyter notebook to read the data written in the previous step, and classify the gaze state throughout each trial at a fixed sample rate. 
+3. Use the `GazeClassification` jupyter notebook to read the data written in the previous step, and classify the gaze state throughout each trial at a fixed sample rate. 
 
 4. Use the `GazeStateAnalysis` jupyter notebook to read the classified data streams, calculate metrics based on the streams, and write those out to a single csv file (`gaze_classification_analysis_results.csv)`.
 
