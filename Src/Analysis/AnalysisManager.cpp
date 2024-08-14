@@ -288,7 +288,8 @@ void AnalysisManager::add_quantitative_analysis_request(std::shared_ptr<Quantita
 
 int AnalysisManager::process_quantitative_analysis_request(std::shared_ptr<QuantitativeAnalysisRequest> analysis_request,
                                                        float *values, const std::string &file,
-                                                       const std::vector<TimeInterval> &intervals_to_investigate) const {
+                                                       const std::vector<TimeInterval> &intervals_to_investigate,
+                                                        int& values_per_timestamp) const {
     std::ifstream transform_file(file + ".txt", std::ios::in | std::ios::binary);
     std::ifstream sound_file(file + "_sound.txt", std::ios::in | std::ios::binary);
     MetaInformation meta_info{file + ".recordmeta"};
@@ -341,6 +342,7 @@ int AnalysisManager::process_quantitative_analysis_request(std::shared_ptr<Quant
 
     result_values = analysis_request->get_result();
     int i = 0;
+    values_per_timestamp = result_values[0].values.size();
     for (auto &time_based_value: result_values) {
         //if (!intervals_to_investigate.empty()) {
         //    for (auto const &interval_of_interest: intervals_to_investigate) {
@@ -353,8 +355,14 @@ int AnalysisManager::process_quantitative_analysis_request(std::shared_ptr<Quant
         //    }
         //} else {
             values[i] = time_based_value.time;
-            values[i + 1] = time_based_value.values[0];
-            i += 2;
+
+            for (int v = 0; v < values_per_timestamp; v++)
+            {
+                values[i + 1 + v] = time_based_value.values[v];
+            }
+            //values[i + 1] = time_based_value.values[0];
+
+            i += (values_per_timestamp + 1);
         //}
     }
     return result_values.size();
@@ -425,8 +433,9 @@ void AnalysisManager::process_quantitative_analysis_requests_for_file(const std:
     }
 
     for (auto request: adapted_queries) {
-        float values[10000];
-        int value_count = process_quantitative_analysis_request(request, values, file, intervals_of_interest);
+        float values[40000];
+        int values_per_timestamp = 1;
+        int value_count = process_quantitative_analysis_request(request, values, file, intervals_of_interest, values_per_timestamp);
         std::cout << "Value count: " << value_count << "\n";
 
         out << "AnalysisQuery,";
@@ -437,9 +446,16 @@ void AnalysisManager::process_quantitative_analysis_requests_for_file(const std:
         out << "Value\n";
 
         for (int i = 0; i < value_count; ++i) {
-            float time = values[i * 2];
-            float value = values[i * 2 + 1];
-            out << time << "," << value << "\n";
+            int read_start = i * (1 + values_per_timestamp);
+            float time = values[read_start];
+
+            out << time;
+            for (int v = 0; v < values_per_timestamp; v++)
+            {
+                float value = values[read_start + 1 + v];
+                out << "," << value;
+            }
+            out << "\n";
         }
 
         out << "\n\n";

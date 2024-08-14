@@ -97,11 +97,12 @@ file(GLOB_RECURSE GAZE_ANALYSIS_FILES
         ${SrcDir}/*.h
         ${UnityDir}/*.cpp
         ${UnityDir}/*.h
-        ${AnalysisDir}/*.cpp
-        ${AnalysisDir}/*.h
+        #${AnalysisDir}/*.cpp
+        #${AnalysisDir}/*.h
         External/AudioFile/*.h
         External/ThreadPool/*.hpp
-        )
+)
+
 
 include_directories(${SrcDir} ${UnityDir})
 
@@ -128,8 +129,12 @@ if(NOT ANDROID_BUILD)
     add_executable(analysis_tests ${ANALYSIS_TEST_FILES})
     target_link_libraries(analysis_tests ${TEST_LIBRARIES})
 
-    add_executable(gaze_analysis ${GAZE_ANALYSIS_FILES})
+    add_executable(gaze_analysis ${AnalysisDir}/GazeAnalysis.cpp ${GAZE_ANALYSIS_FILES})
     target_link_libraries(gaze_analysis ${TEST_LIBRARIES})
+
+    add_executable(get_transforms_for_gaze_analysis ${AnalysisDir}/GetTransformsForGazeAnalysis.cpp ${GAZE_ANALYSIS_FILES})
+    target_link_libraries(get_transforms_for_gaze_analysis ${TEST_LIBRARIES})
+
 endif()
 
 set(COMMON_LIBRARIES PRIVATE glm zlibstatic)
