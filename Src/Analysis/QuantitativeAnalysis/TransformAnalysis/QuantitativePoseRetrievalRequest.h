@@ -2,14 +2,14 @@
 // Created by Admin on 07.03.2024.
 //
 
-#ifndef RECORDINGPLUGIN_QuantitativeRotationRetrievalRequest_H
-#define RECORDINGPLUGIN_QuantitativeRotationRetrievalRequest_H
+#ifndef RECORDINGPLUGIN_QuantitativePoseRetrievalRequest_H
+#define RECORDINGPLUGIN_QuantitativePoseRetrievalRequest_H
 
 
 #include <deque>
 #include "QuantitativeTramsformAnalysisRequest.h"
 
-class QuantitativeRotationRetrievalRequest : public QuantitativeTransformAnalysisRequest{
+class QuantitativePoseRetrievalRequest : public QuantitativeTransformAnalysisRequest{
 
 private:
     int id;
@@ -17,7 +17,7 @@ private:
     std::deque<std::shared_ptr<TransformData>> recent_data;
 
 public:
-    QuantitativeRotationRetrievalRequest(int i, float t_sampling_rate);
+    QuantitativePoseRetrievalRequest(int i, float t_sampling_rate);
 
     void update_parameters(MetaInformation& original_meta_file, MetaInformation& new_meta_file) override;
 
@@ -33,4 +33,4 @@ public:
 };
 
 
-#endif //RECORDINGPLUGIN_QuantitativeRotationRetrievalRequest_H
+#endif //RECORDINGPLUGIN_QuantitativePoseRetrievalRequest_H

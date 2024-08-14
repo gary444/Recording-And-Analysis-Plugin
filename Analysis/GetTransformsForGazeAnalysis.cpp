@@ -43,7 +43,7 @@
 #include "Analysis/QuantitativeAnalysis/TransformAnalysis/QuantitativeGazeAnalysisRequest.h"
 #include "Analysis/QuantitativeAnalysis/TransformAnalysis/QuantitativeDistanceAnalysisRequest.h"
 #include "Analysis/QuantitativeAnalysis/TransformAnalysis/QuantitativeRotationAnalysisRequest.h"
-#include "Analysis/QuantitativeAnalysis/TransformAnalysis/QuantitativeRotationRetrievalRequest.h"
+#include "Analysis/QuantitativeAnalysis/TransformAnalysis/QuantitativePoseRetrievalRequest.h"
 
 #include <filesystem>
 #include <string>
@@ -99,31 +99,13 @@ void get_transforms_for_gaze_analysis(std::vector<std::string> rec_files, const 
 
 
     //-------------------------------------------------------------------
-    // quantitative head rotation queries 
+    // quantitative head pose queries 
     //------------------------------------------------------------------- 
-
-
 
     for (size_t i = 0; i < 4; i++)
     {
-        // TODO create correct query type
-
-        std::shared_ptr<QuantitativeRotationRetrievalRequest> quantitative_rotation_request = std::make_shared<QuantitativeRotationRetrievalRequest>(participant_head_uuids[i], analysis_sampling_rate);
+        std::shared_ptr<QuantitativePoseRetrievalRequest> quantitative_rotation_request = std::make_shared<QuantitativePoseRetrievalRequest>(participant_head_uuids[i], analysis_sampling_rate);
         manager.add_quantitative_analysis_request(quantitative_rotation_request);
-
-    }
-
-    //-------------------------------------------------------------------
-    // quantitative head position queries 
-    //------------------------------------------------------------------- 
-
-
-    for (size_t i = 0; i < 4; i++)
-    {
-        // TODO create correct query type
-        //std::shared_ptr<QuantitativeTransformAnalysisRequest> quantitative_position_request = std::make_shared<QuantitativeRotationAnalysisRequest>(participant_head_uuids[i], analysis_sampling_rate);
-        //manager.add_quantitative_analysis_request(quantitative_position_request);
-
     }
 
 
