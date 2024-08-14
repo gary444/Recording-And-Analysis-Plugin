@@ -43,7 +43,8 @@ def yawElevationToVector(yawElevation, unit='deg'):
     """ Transforms an angular representation of gaze (phi, theta) into a vectorial one (x,y,z).
         WARNING: angles outer than [-90, 90] will give wrong vectors """
     # TODO: generalize with matrix rotation
-    yawElevation = map(float, yawElevation)
+#     yawElevation = map(float, yawElevation)
+
     if unit == 'deg':
         yaw, elevation = yawElevation[0]/180*np.pi, yawElevation[1]/180*np.pi
         if np.abs(yaw) >= 90 or np.abs(elevation) >= 90:
@@ -66,7 +67,8 @@ def yawElevationToVector(yawElevation, unit='deg'):
     else:
         z = np.sqrt(1 - x**2 - y**2)
     if np.isnan(z):
-        print '[yawElevationToVector]', np.array(yawElevation).flatten()*180/np.pi, [x, y, z]
+        print("nan found") 
+#         print '[yawElevationToVector]', np.array(yawElevation).flatten()*180/np.pi, [x, y, z]
 
     return np.resize([x, y, z], (3, 1))
 
