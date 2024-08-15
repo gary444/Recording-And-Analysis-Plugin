@@ -18,43 +18,48 @@ void QuantitativeRotationAnalysisRequest::update_parameters(MetaInformation &ori
 void QuantitativeRotationAnalysisRequest::process_request(std::shared_ptr<TransformData> t_data,
                                                           std::shared_ptr<SoundData> s_data) {
     
-    const int frames_to_average = 5;
+    const float averaging_window_duration_sec = 0.2;
+    const int max_buffer_size = averaging_window_duration_sec * 60; // assume no more than 60 Hz recording rate
     
     if (!t_data)
         return;
     if (t_data->id == id) {
         recent_data.emplace_back(t_data);
 
-        while (recent_data.size() > frames_to_average) {
+        while (recent_data.size() > max_buffer_size) {
             recent_data.pop_front();
         }
 
-
         const float sampling_interval = 1.0f / temporal_sampling_rate;
         const float time_for_next_sample = last_value_time + sampling_interval;
+
+        const float window_start_time = std::max(0.f, time_for_next_sample - averaging_window_duration_sec);
 
         if (t_data->time > time_for_next_sample) {
 
             // get average rotation speed over last frames_to_average frames
             float accum_rot_speed = 0.f;
-            for (int i = 1; i < recent_data.size(); i++)
+            int samples = 0;
+            int read_pos = recent_data.size() - 1;
+            while (read_pos >= 0 && recent_data[read_pos]->time > window_start_time)
             {
-                glm::quat tmp = recent_data[i]->global_rotation * glm::inverse(recent_data[i-1]->global_rotation);
-                float angle_diff = acos(abs(tmp.w)) * 2.0f;
+                glm::quat tmp = recent_data[read_pos]->global_rotation * glm::inverse(recent_data[read_pos-1]->global_rotation);
+                float angle_diff = acos(std::min(1.f, abs(tmp.w))) * 2.0f;
                 float angle_diff_degrees = angle_diff * (180.0f / 3.141f);
-                float time_diff = recent_data[i]->time - recent_data[i-1]->time;
+                float time_diff = recent_data[read_pos]->time - recent_data[read_pos-1]->time;
 
                 if (time_diff > 0.0f)
                 {
 					accum_rot_speed += angle_diff_degrees / time_diff;
+					samples++;
 				}
+				read_pos--;
             }
-            if (recent_data.size() > 1) {
-                accum_rot_speed /= recent_data.size();
+            if (samples) {
+                accum_rot_speed /= float(samples);
             }
-
-            values.push_back(TimeBasedValue{t_data->time, {accum_rot_speed}});
-            last_value_time = t_data->time;
+            values.push_back(TimeBasedValue{ time_for_next_sample, {accum_rot_speed}});
+            last_value_time = time_for_next_sample;
         }
     }
 }
