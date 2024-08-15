@@ -147,7 +147,6 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
             if (j != i) {
 
                 // note: add final argument to specify that forward direction is positive Z axis!
-                //std::shared_ptr<IntervalGazeAnalysisRequest> gaze_request = std::make_shared<IntervalGazeAnalysisRequest>(participant_head_uuids[i], participant_head_uuids[j], gaze_cone_fov_angle, gaze_cone_height, 1);
                 std::shared_ptr<QuantitativeTransformAnalysisRequest> gaze_request = std::make_shared<QuantitativeGazeAnalysisRequest>(participant_head_uuids[i], participant_head_uuids[j], rotation_analysis_sampling_rate);
 
                 manager.add_quantitative_analysis_request(gaze_request);
@@ -245,7 +244,7 @@ int main(int argc, char* argv[]) {
                 ++dirs_searched;
 
 
-                if (dirs_searched == 5) {
+                if (dirs_searched == 2) {
                     //break;
                 }
 
