@@ -458,10 +458,10 @@ void Utils::export_sound_data_to_WAV(std::string const& sound_file_path, std::st
 
     for (auto j : sound_origins) {
 
-        // TODO remove
-        if (0 != j) {
-            continue;
-        }
+        //// TODO remove
+        //if (0 != j) {
+        //    continue;
+        //}
 
         AudioFile<float> audioFile;
         AudioFile<float>::AudioBuffer buffer;
@@ -480,9 +480,15 @@ void Utils::export_sound_data_to_WAV(std::string const& sound_file_path, std::st
 
             if (current_data.id == j) {
 
+                if (current_data.s_i > 0)
+                    std::cout << current_data.to_string() << std::endl;
+
                 // new fix: check if start time is valid, given number of samples observed for sound origin so far
                 if (0 == current_data.id) {
-                    //std::cout << current_data.to_string() << std::endl;
+
+                    //if (i < 50)
+                    /*if (current_data.s_i > 0)
+                        std::cout << current_data.to_string() << std::endl;*/
 
                     float expected_start_time = float(total_size) / origin_sample_rate[j];
                     //std::cout << "Expected start time " << expected_start_time << std::endl;
@@ -521,12 +527,12 @@ void Utils::export_sound_data_to_WAV(std::string const& sound_file_path, std::st
 
         int current_index = 0;
         record_file.seekg(0, std::ifstream::beg);
-        std::vector<SoundDTO> sound_buffer;
+        //std::vector<SoundDTO> sound_buffer;
 
         total_size = 0;
 
         bool first = true;
-        std::ofstream write_file{sound_data_file + std::to_string(j), std::ios_base::app | std::ios_base::out | std::ios::binary};
+        //std::ofstream write_file{sound_data_file + std::to_string(j), std::ios_base::app | std::ios_base::out | std::ios::binary};
         for (unsigned long i = 0; i < size; i++) {
             record_file.read((char *) &current_data, sizeof(SoundDTO));
 
@@ -541,7 +547,7 @@ void Utils::export_sound_data_to_WAV(std::string const& sound_file_path, std::st
                 }
 
 
-                sound_buffer.push_back(current_data);
+                //sound_buffer.push_back(current_data);
 
                 if (current_data.s_r > 0 && current_data.c_n > 0) {
                     total_size += current_data.s_n;
@@ -562,26 +568,40 @@ void Utils::export_sound_data_to_WAV(std::string const& sound_file_path, std::st
                 //    first = false;
                 //}
 
+                const int write_pos_start = sampling_rate * current_data.s_t;
+                int write_pos = write_pos_start;
+
                 //std::cout << "Current chunk start: " << current_chunk.start_time << ", end: " << current_chunk.end_time << "\n";
                 for (int k = 0; k < current_data.s_n; k++) {
-                    if (k + current_data.s_i < 4800 && current_index < channel_sample_num) {
-                        buffer[k % channel_num][current_index] = current_data.s_d[k + current_data.s_i];
-                        if(k % channel_num == channel_num - 1) {
-                            current_index++;
+
+                    //if (k + current_data.s_i < 4800 && current_index < channel_sample_num) {
+                    //    buffer[k % channel_num][current_index] = current_data.s_d[k + current_data.s_i];
+                    //    if(k % channel_num == channel_num - 1) {
+                    //        current_index++;
+                    //    }
+                    //} 
+
+                    if (write_pos < channel_sample_num) {
+                        buffer[k % channel_num][write_pos] = current_data.s_d[k];
+                        if (k % channel_num == channel_num - 1) {
+                            ++write_pos;
                         }
-                    } else if(current_index >= channel_sample_num){
+                    }
+
+                    else if(write_pos >= channel_sample_num){
                         Debug::Log("Error! Cannot add more samples!", Color::Red);
                         break;
-                    } else {
-                        Debug::Log("Error! Invalid sound data! Trying to access data at index " + std::to_string(k + current_data.s_i), Color::Red);
+                    } 
+                    else {
+                        Debug::Log("Error! Invalid sound data! Trying to access data at index " + std::to_string(k), Color::Red);
                         break;
                     }
                 }
             }
         }
 
-        write_file.write((char *) &sound_buffer[0], sound_buffer.size() * sizeof(SoundDTO));
-        write_file.close();
+        //write_file.write((char *) &sound_buffer[0], sound_buffer.size() * sizeof(SoundDTO));
+        //write_file.close();
 
         Debug::Log("Finished reading the sound recording file");
 

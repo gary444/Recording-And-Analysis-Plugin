@@ -100,6 +100,8 @@ int main(int argc, char *argv[]) {
                         }
                     }
 
+                    int files_processed = 0;
+
                     // get sound files inside subdirectory 
                     fs::path subdir = entry.path();
                     for (const auto& subd_entry : fs::directory_iterator(subdir)) {
@@ -117,11 +119,19 @@ int main(int argc, char *argv[]) {
 
                             Utils::export_sound_data_to_WAV(filename, out_filename_base);
 
+                            //if (++files_processed >= 1)
+                            //    break;
+
                         }
                     }
                 }
 
+                //if (dirs_searched++ > 2)
+                //    break;
+
+
             }
+
         }
         else {
             std::cerr << "The specified path does not exist or is not a directory." << std::endl;
