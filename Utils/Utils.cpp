@@ -36,6 +36,8 @@
 //   Date:           2024
 //-----------------------------------------------------------------
 
+#include <regex>
+
 #include "Utils.h"
 
 void Utils::export_transform_data_to_CSV(std::string const& transform_file_path) {
@@ -129,6 +131,8 @@ void Utils::export_generic_data_to_CSV(const std::string &generic_file_path) {
     out.close();
     record_file.close();
 }
+
+
 
 void Utils::export_sound_data_to_WAV(std::string const& sound_file_path, std::string out_sound_file_basepath) {
     Debug::Log("Writing sound data to WAV file");
@@ -618,4 +622,118 @@ void Utils::export_sound_data_to_WAV(std::string const& sound_file_path, std::st
     }
 #endif
     record_file.close();
+}
+
+
+void Utils::get_sound_data_description(std::string const& record_file_path, std::string out_file_basepath) {
+
+    std::string sound_data_file = std::regex_replace(record_file_path, std::regex(".recordmeta"), "_sound.txt");
+
+    std::string out_file = out_file_basepath + "_sound_sources.csv";
+
+    //std::set<int> sound_ids = current_recording.meta_information.get_sound_ids();
+
+    std::ifstream record_file(sound_data_file, std::ios::in | std::ios::binary);
+    record_file.seekg(0, std::ifstream::beg);
+
+    if (!record_file.good()) {
+        Debug::Log("Sound file could not be accessed!", Color::Red);
+        return;
+    }
+
+    record_file.seekg(0, std::ifstream::end);
+    unsigned long size = record_file.tellg() / sizeof(SoundDTO);
+
+    Debug::Log("Recording sound file can be accessed. Number of sound chunks: " + std::to_string(size));
+    SoundDTO current_data;
+    record_file.seekg(0, std::ifstream::beg);
+
+    struct SoundSource {
+		int id;
+		int go_id;
+        int participant;
+
+        // allow object to be put in a set
+        bool operator<(const SoundSource& other) const {
+			return id < other.id;
+		}
+	};
+
+    std::set<int> sound_origins;
+    std::set<int> sound_origin_gos;
+
+    //std::vector<int> sound_chunk_count(100, 0);
+    //std::vector<int> origin_sample_rate(100, 0);
+
+    std::set<SoundSource> sound_sources;
+
+    for (unsigned long i = 0; i < size; i++) {
+
+        record_file.read((char*)&current_data, sizeof(SoundDTO));
+
+        SoundSource ss;
+        ss.id = current_data.id;
+        ss.go_id = current_data.c_go_id;
+        sound_sources.insert(ss);
+    }
+
+    Debug::Log("Detected " + std::to_string(sound_sources.size()) + " different audio sources.");
+    for (auto so : sound_sources) {
+        std::cout << "Sound origin id " << so.id << std::endl;
+        std::cout << "Sound game object " << so.go_id << std::endl;
+    }
+
+    // open recordmeta file to get names of game objects associated with sound sources
+    //std::ifstream record_file_meta(record_file_path, std::ios::in | std::ios::binary);
+    //record_file_meta.seekg(0, std::ifstream::beg);
+
+    // create csv fiel to write to
+    std::fstream out_csv_file(out_file, std::fstream::out);
+    out_csv_file << "SoundID,Participant\n";
+
+    MetaInformation meta_information{ record_file_path };
+
+    int sources = 0;
+    for (auto& so : sound_sources) {
+        
+        if (++sources > 2) {
+
+            std::string obj_name = meta_information.get_object_name(so.go_id);
+
+            // find the location of string 'Participant'
+            size_t pos = obj_name.find("Participant");
+
+            // check if found
+            if (pos != std::string::npos) {
+                // find the character after 'Participant'
+                char c = obj_name[pos + 11];
+
+                // convert to integer variable
+                int participant = c - '0';
+
+                std::cout << "obj uuid" << so.go_id << std::endl;
+                std::cout << "obj name " << obj_name << std::endl;
+                std::cout << "obj participant " << participant << std::endl;
+
+                out_csv_file << so.id << "," << participant << "\n";
+
+			}
+            else {
+                std::cout << "not found in " << obj_name << std::endl;
+            }
+
+
+        }
+
+        
+    }
+
+    out_csv_file.close();
+
+
+
+
+    record_file.close();
+
+
 }

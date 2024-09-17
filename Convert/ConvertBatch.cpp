@@ -79,7 +79,8 @@ int main(int argc, char *argv[]) {
     fs::path directory = base_path;
 
     std::string sound_suffix = "_sound.txt";
-
+    std::string record_suffix = ".recordmeta";
+    
 
     try {
         if (fs::exists(directory) && fs::is_directory(directory)) {
@@ -102,6 +103,7 @@ int main(int argc, char *argv[]) {
 
                     int files_processed = 0;
 
+#if 0
                     // get sound files inside subdirectory 
                     fs::path subdir = entry.path();
                     for (const auto& subd_entry : fs::directory_iterator(subdir)) {
@@ -116,14 +118,34 @@ int main(int argc, char *argv[]) {
 
                             std::cout << "Output sound file base " << out_filename_base << std::endl;
 
-
                             Utils::export_sound_data_to_WAV(filename, out_filename_base);
-
-                            //if (++files_processed >= 1)
-                            //    break;
 
                         }
                     }
+#else
+                    // get recordmeta files inside subdirectory 
+                    fs::path subdir = entry.path();
+                    for (const auto& subd_entry : fs::directory_iterator(subdir)) {
+
+                        std::string filename = subd_entry.path().string();
+
+                        if (filename.size() >= record_suffix.size() &&
+                            filename.compare(filename.size() - record_suffix.size(), record_suffix.size(), record_suffix) == 0) {
+                            std::cout << "Processing sound file ending with '" << record_suffix << "': " << filename << std::endl;
+
+                            std::string out_filename_base = (out_subdirectory / subd_entry.path().filename()).string();
+
+                            std::cout << "Output recording description file base " << out_filename_base << std::endl;
+
+                            Utils::get_sound_data_description(filename, out_filename_base);
+
+                            //if (++files_processed >= 1)
+                            //    break;
+                        }
+                    }
+#endif
+
+
                 }
 
                 //if (dirs_searched++ > 2)

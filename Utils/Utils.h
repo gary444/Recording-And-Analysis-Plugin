@@ -61,6 +61,8 @@ namespace Utils {
     void export_generic_data_to_CSV(std::string const& generic_file_path);
 
     void export_sound_data_to_WAV(std::string const& sound_file_path, std::string out_sound_file_basepath = "");
+
+    void get_sound_data_description(std::string const& sound_file_path, std::string out_file_basepath);
 };
 
 
