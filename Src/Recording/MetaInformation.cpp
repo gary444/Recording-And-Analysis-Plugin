@@ -43,6 +43,8 @@
 #include "Sound/SoundData.h"
 #include "Generic/GenericData.h"
 
+std::vector<std::string> MetaInformation::strings_to_remove_from_object_names = {};
+
 MetaInformation::MetaInformation() {
     writing_finished = false;
 }
@@ -55,6 +57,11 @@ MetaInformation::MetaInformation(std::string const& directory) : file_directory(
         Debug::Log("Error occurred trying to read meta information!", Color::Red);
     }
 }
+
+void MetaInformation::set_strings_to_remove_from_object_names(const std::vector<std::string>& _strings_to_remove_from_object_names) {
+	MetaInformation::strings_to_remove_from_object_names = _strings_to_remove_from_object_names;
+}
+
 
 void MetaInformation::recording_stopped() {
     //end_time = std::chrono::system_clock::now();
@@ -201,6 +208,14 @@ bool MetaInformation::read_meta_information() {
                 }), object_prefab.end());
 
                 //std::cout << "uuid : " << uuid << ", object name: " << object_name << "\n";
+
+                // remove strings from object names
+                for (const auto& s : strings_to_remove_from_object_names) {
+					size_t pos = object_name.find(s);
+                    if (pos != std::string::npos) {
+						object_name.erase(pos, s.length());
+					}
+				}
 
                 if (!object_name_uuid_map.count(object_name)) {
                     object_name_uuid_map[object_name] = uuid;

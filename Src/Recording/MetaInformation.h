@@ -78,10 +78,17 @@ private:
     bool recording_finished = false;
     bool writing_finished = false;
 
+    // strings that are removed from the object names when reading them from file
+    static std::vector<std::string> strings_to_remove_from_object_names;
+
 public:
     MetaInformation();
 
     MetaInformation(std::string const& directory);
+
+    MetaInformation(std::string const& directory, const std::vector<std::string>& _strings_to_remove_from_object_names);
+
+    static void set_strings_to_remove_from_object_names(const std::vector<std::string>& _strings_to_remove_from_object_names);
 
     ~MetaInformation();
 

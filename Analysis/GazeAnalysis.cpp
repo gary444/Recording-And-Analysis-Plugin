@@ -71,8 +71,8 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
     }
 
 
-
     std::string primary_file = manager.get_primary_file();
+    MetaInformation::set_strings_to_remove_from_object_names({" [Local]", " [Remote]" });
     MetaInformation meta_information{ primary_file + ".recordmeta" };
 
     // identify heads of participants
@@ -83,7 +83,7 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
         std::stringstream game_object_path_ss;
         game_object_path_ss << "/__SCENE__";
         game_object_path_ss << (i < 2 ? "/S143TrackingArea" : "/DBLTrackingArea" );
-        game_object_path_ss << "/Participant" << std::to_string(i) << " [Remote]/Head";
+        game_object_path_ss << "/Participant" << std::to_string(i) << "/Head";
 
         participant_head_uuids[i] = meta_information.get_old_uuid(game_object_path_ss.str());
 
@@ -126,12 +126,12 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
 
     float rotation_analysis_sampling_rate = 10.f;
 
-    for (size_t i = 0; i < 4; i++)
-    {
-        std::shared_ptr<QuantitativeTransformAnalysisRequest> quantitative_rotation_request = std::make_shared<QuantitativeRotationAnalysisRequest>(participant_head_uuids[i], rotation_analysis_sampling_rate);
-        manager.add_quantitative_analysis_request(quantitative_rotation_request);
+    //for (size_t i = 0; i < 4; i++)
+    //{
+    //    std::shared_ptr<QuantitativeTransformAnalysisRequest> quantitative_rotation_request = std::make_shared<QuantitativeRotationAnalysisRequest>(participant_head_uuids[i], rotation_analysis_sampling_rate);
+    //    manager.add_quantitative_analysis_request(quantitative_rotation_request);
 
-    }
+    //}
 
 
 
@@ -187,7 +187,10 @@ int main(int argc, char* argv[]) {
     }
 
 
-    std::string search_suffix = "experimentcontroller.recordmeta";
+    //std::string search_suffix = "experimentcontroller.recordmeta";
+    
+    std::string search_suffix = ".recordmeta";
+    std::string search_string = "participant";
 
     std::cout << "Found input subdirectories:\n" << std::endl;
 
@@ -212,16 +215,14 @@ int main(int argc, char* argv[]) {
                     std::string filename = subd_entry.path().string();
 
                     if (filename.size() >= search_suffix.size() &&
-                        filename.compare(filename.size() - search_suffix.size(), search_suffix.size(), search_suffix) == 0) {
+                        filename.compare(filename.size() - search_suffix.size(), search_suffix.size(), search_suffix) == 0 &&
+                        filename.find(search_string) != std::string::npos) {
 
                         fs::path p = subd_entry.path();
-                        std::cout << "Found recording file" << p.replace_extension().string() << std::endl;
+                        std::cout << "Found recording file: " << p.replace_extension().string() << std::endl;
 
                         all_rec_files.push_back(p.replace_extension().string());
-                        //rec_files_from_group.push_back(p.replace_extension().string());
 
-                        // TODO remove 
-                        //break;
                     }
                 }
 
@@ -243,13 +244,6 @@ int main(int argc, char* argv[]) {
 
                 ++dirs_searched;
 
-
-                if (dirs_searched == 2) {
-                    //break;
-                }
-
-
-
             }
 
 
@@ -263,37 +257,6 @@ int main(int argc, char* argv[]) {
     catch (const std::exception& e) {
         std::cerr << "General exception: " << e.what() << std::endl;
     }
-
-
-
-
-
-    /*
-
-
-
-
-    std::vector<std::string> recordings_to_analyse;
-
-
-    std::string rec_file(argv[1]);
-    recordings_to_analyse.push_back(rec_file);
-
-
-
-
-    const std::string filter_str("experimentcontroller");
-
-    for (auto r : recordings_to_analyse) {
-
-        if ((r.find(filter_str) != std::string::npos)) {
-            gaze_analysis(r, results_output_dir);
-        }
-        else {
-            std::cout << "Did not analyse file " << r << " because filter string (" << filter_str << ") was not found " << std::endl;
-        }
-    }
-    */
 
     std::cout << "Finished Analysis" << std::endl;
 
