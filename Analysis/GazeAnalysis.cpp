@@ -126,12 +126,11 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
 
     float rotation_analysis_sampling_rate = 10.f;
 
-    //for (size_t i = 0; i < 4; i++)
-    //{
-    //    std::shared_ptr<QuantitativeTransformAnalysisRequest> quantitative_rotation_request = std::make_shared<QuantitativeRotationAnalysisRequest>(participant_head_uuids[i], rotation_analysis_sampling_rate);
-    //    manager.add_quantitative_analysis_request(quantitative_rotation_request);
-
-    //}
+    for (size_t i = 0; i < 4; i++)
+    {
+        std::shared_ptr<QuantitativeTransformAnalysisRequest> quantitative_rotation_request = std::make_shared<QuantitativeRotationAnalysisRequest>(participant_head_uuids[i], rotation_analysis_sampling_rate);
+        manager.add_quantitative_analysis_request(quantitative_rotation_request);
+    }
 
 
 
