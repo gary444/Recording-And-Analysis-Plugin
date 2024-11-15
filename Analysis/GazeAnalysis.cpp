@@ -190,6 +190,8 @@ int main(int argc, char* argv[]) {
     
     std::string search_suffix = ".recordmeta";
     std::string search_string = "participant";
+    std::string search_string_2 = "group6_";
+    //std::string search_string_3 = "participant2";
 
     std::cout << "Found input subdirectories:\n" << std::endl;
 
@@ -213,14 +215,18 @@ int main(int argc, char* argv[]) {
 
                     std::string filename = subd_entry.path().string();
 
-                    if (filename.size() >= search_suffix.size() &&
-                        filename.compare(filename.size() - search_suffix.size(), search_suffix.size(), search_suffix) == 0 &&
-                        filename.find(search_string) != std::string::npos) {
+                    if (filename.size() >= search_suffix.size() 
+                        && filename.compare(filename.size() - search_suffix.size(), search_suffix.size(), search_suffix) == 0 
+                        && filename.find(search_string) != std::string::npos 
+                        && filename.find(search_string_2) != std::string::npos
+                        //&& filename.find(search_string_3) != std::string::npos
+                        ) {
 
                         fs::path p = subd_entry.path();
                         std::cout << "Found recording file: " << p.replace_extension().string() << std::endl;
 
                         all_rec_files.push_back(p.replace_extension().string());
+
 
                     }
                 }
