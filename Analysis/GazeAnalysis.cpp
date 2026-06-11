@@ -46,6 +46,9 @@
 #include <filesystem>
 #include <string>
 
+#include "../Utils/Utils.h"
+
+
 namespace fs = std::filesystem;
 
 using std::chrono::high_resolution_clock;
@@ -72,7 +75,8 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
 
 
     std::string primary_file = manager.get_primary_file();
-    MetaInformation::set_strings_to_remove_from_object_names({" [Local]", " [Remote]" });
+    MetaInformation::set_strings_to_remove_from_object_names({"[rejoin]" });
+    //MetaInformation::set_strings_to_remove_from_object_names({" [Local]", " [Remote]", "[rejoin]"});
     MetaInformation meta_information{ primary_file + ".recordmeta" };
 
     // identify heads of participants
@@ -81,9 +85,9 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
     for (size_t i = 0; i < participant_head_uuids.size(); i++)
     {
         std::stringstream game_object_path_ss;
-        game_object_path_ss << "/__SCENE__";
-        game_object_path_ss << (i < 2 ? "/S143TrackingArea" : "/DBLTrackingArea" );
-        game_object_path_ss << "/Participant" << std::to_string(i) << "/Head";
+        //game_object_path_ss << "/__SCENE__";
+        //game_object_path_ss << (i < 2 ? "/S143TrackingArea" : "/DBLTrackingArea" );
+        game_object_path_ss << "/Player_" << std::to_string(i) << " [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject";
 
         participant_head_uuids[i] = meta_information.get_old_uuid(game_object_path_ss.str());
 
@@ -134,11 +138,11 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
 
 
 
-
     //-------------------------------------------------------------------
     // quantitative gaze queries 
     //------------------------------------------------------------------- 
 
+    /*
     for (size_t i = 0; i < 4; i++)
     {
         for (size_t j = 0; j < 4; j++)
@@ -152,7 +156,7 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
             }
         }
     }
-
+    */
     manager.process_quantitative_analysis_requests_for_all_files();
 
 
@@ -189,8 +193,8 @@ int main(int argc, char* argv[]) {
     //std::string search_suffix = "experimentcontroller.recordmeta";
     
     std::string search_suffix = ".recordmeta";
-    std::string search_string = "participant";
-    std::string search_string_2 = "group6_";
+    std::string search_string = "excluded";
+    //std::string search_string_2 = "group6_";
     //std::string search_string_3 = "participant2";
 
     std::cout << "Found input subdirectories:\n" << std::endl;
@@ -217,16 +221,21 @@ int main(int argc, char* argv[]) {
 
                     if (filename.size() >= search_suffix.size() 
                         && filename.compare(filename.size() - search_suffix.size(), search_suffix.size(), search_suffix) == 0 
-                        && filename.find(search_string) != std::string::npos 
-                        && filename.find(search_string_2) != std::string::npos
+                        && filename.find(search_string) == std::string::npos 
+                        //&& filename.find(search_string_2) != std::string::npos
                         //&& filename.find(search_string_3) != std::string::npos
                         ) {
+
+                        // test if exporting transforms for gaze object works (it does, if given .transform file)
+                        //Utils::export_transform_data_to_CSV(filename, "/Player_0 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "head_p0");
+
 
                         fs::path p = subd_entry.path();
                         std::cout << "Found recording file: " << p.replace_extension().string() << std::endl;
 
                         all_rec_files.push_back(p.replace_extension().string());
 
+                        break;
 
                     }
                 }
@@ -250,7 +259,7 @@ int main(int argc, char* argv[]) {
                 ++dirs_searched;
 
             }
-
+            break;
 
         }
         gaze_analysis(all_rec_files, out_directory.string());

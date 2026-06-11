@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 
     fs::path directory = base_path;
 
-    std::string sound_suffix = "_sound.txt";
+    std::string sound_suffix = ".sound";
     std::string record_suffix = ".recordmeta";
     
 
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
 
                     int files_processed = 0;
 
-#if 0
+#if 1
                     // get sound files inside subdirectory 
                     fs::path subdir = entry.path();
                     for (const auto& subd_entry : fs::directory_iterator(subdir)) {

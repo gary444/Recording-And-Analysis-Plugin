@@ -13,8 +13,8 @@ int AnalysisManager::process_interval_analysis_request(std::shared_ptr<IntervalA
                                                        float *intervals, std::string const &file,
                                                        std::vector<TimeInterval> const &intervals_to_investigate) const {
 
-    std::ifstream transform_file(file + ".txt", std::ios::in | std::ios::binary);
-    std::ifstream sound_file(file + "_sound.txt", std::ios::in | std::ios::binary);
+    std::ifstream transform_file(file + ".transform", std::ios::in | std::ios::binary);
+    std::ifstream sound_file(file + ".sound", std::ios::in | std::ios::binary);
     MetaInformation meta_info{file + ".recordmeta"};
     std::vector<TimeInterval> time_intervals;
 
@@ -98,7 +98,7 @@ AnalysisManager::get_object_positions(int object_id, float start_time, float end
         return -1;
 
     Debug::Log("Processing position retrieval request for recording file: " + recording_file_paths.front());
-    std::ifstream transform_file(recording_file_paths.front() + ".txt", std::ios::in | std::ios::binary);
+    std::ifstream transform_file(recording_file_paths.front() + ".transform", std::ios::in | std::ios::binary);
 
     std::vector<glm::vec3> all_positions;
     std::vector<float> all_times;
@@ -290,8 +290,8 @@ int AnalysisManager::process_quantitative_analysis_request(std::shared_ptr<Quant
                                                        float *values, const std::string &file,
                                                        const std::vector<TimeInterval> &intervals_to_investigate,
                                                         int& values_per_timestamp) const {
-    std::ifstream transform_file(file + ".txt", std::ios::in | std::ios::binary);
-    std::ifstream sound_file(file + "_sound.txt", std::ios::in | std::ios::binary);
+    std::ifstream transform_file(file + ".transform", std::ios::in | std::ios::binary);
+    std::ifstream sound_file(file + ".sound", std::ios::in | std::ios::binary);
     MetaInformation meta_info{file + ".recordmeta"};
     std::vector<TimeBasedValue> result_values;
 

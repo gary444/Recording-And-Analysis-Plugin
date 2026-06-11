@@ -18,7 +18,7 @@ void QuantitativeRotationAnalysisRequest::update_parameters(MetaInformation &ori
 void QuantitativeRotationAnalysisRequest::process_request(std::shared_ptr<TransformData> t_data,
                                                           std::shared_ptr<SoundData> s_data) {
     
-    const float averaging_window_duration_sec = 0.2;
+    const float averaging_window_duration_sec = 0.1;
     const int max_buffer_size = averaging_window_duration_sec * 60; // assume no more than 60 Hz recording rate
     
     if (!t_data)
@@ -41,7 +41,15 @@ void QuantitativeRotationAnalysisRequest::process_request(std::shared_ptr<Transf
             float accum_rot_speed = 0.f;
             int samples = 0;
             int read_pos = recent_data.size() - 1;
-            while (read_pos >= 0 && recent_data[read_pos]->time > window_start_time)
+
+            // skip frames that are causally after the output timestamp
+            //while (read_pos >= 0 && recent_data[read_pos]->time > time_for_next_sample)
+                //read_pos--;
+
+            
+
+
+            while (read_pos > 0 && recent_data[read_pos]->time > window_start_time)
             {
                 glm::quat tmp = recent_data[read_pos]->global_rotation * glm::inverse(recent_data[read_pos-1]->global_rotation);
                 float angle_diff = acos(std::min(1.f, abs(tmp.w))) * 2.0f;
@@ -78,6 +86,7 @@ std::string QuantitativeRotationAnalysisRequest::get_description(MetaInformation
 void QuantitativeRotationAnalysisRequest::clear_recent_data() {
     last_value_time = -1;
     values.clear();
+    recent_data.clear();
 }
 
 TransformAnalysisType QuantitativeRotationAnalysisRequest::get_type() const {

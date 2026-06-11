@@ -99,6 +99,8 @@ file(GLOB_RECURSE GAZE_ANALYSIS_FILES
         ${UnityDir}/*.h
         #${AnalysisDir}/*.cpp
         #${AnalysisDir}/*.h
+        ${UtilsDir}/*.cpp
+        ${UtilsDir}/*.h
         External/AudioFile/*.h
         External/ThreadPool/*.hpp
 )
