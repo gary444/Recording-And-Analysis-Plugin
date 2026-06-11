@@ -181,12 +181,13 @@ int AnalysisManager::process_interval_analysis_requests_for_all_files() {
         if (intervals_of_interest.count(file) != 0) {
             intervals_to_investigate = intervals_of_interest[file];
         }
-        getThreadPool().submit_task([this, &file, &meta_information, &intervals_to_investigate] {this->process_interval_analysis_requests_for_file(file, intervals_to_investigate); });
-        
+        getThreadPool().submit_task([this, file, intervals_to_investigate] {this->process_interval_analysis_requests_for_file(file, intervals_to_investigate); });
+
         //getThreadPool().push_task(&AnalysisManager::process_interval_analysis_requests_for_file, this, file,
         //                          meta_information, intervals_to_investigate);
     }
 
+    getThreadPool().wait();
     return 1;
 }
 
@@ -385,10 +386,11 @@ int AnalysisManager::process_quantitative_analysis_requests_for_all_files() {
         }
         //getThreadPool().push_task(&AnalysisManager::process_quantitative_analysis_requests_for_file, this, file,
         //                          meta_information, intervals_to_investigate);
-        getThreadPool().submit_task([this, &file, &meta_information, &intervals_to_investigate] {this->process_quantitative_analysis_requests_for_file(file,
+        getThreadPool().submit_task([this, file, intervals_to_investigate] {this->process_quantitative_analysis_requests_for_file(file,
             intervals_to_investigate); });
     }
 
+    getThreadPool().wait();
     return 0;
 }
 
