@@ -105,16 +105,16 @@ int main(int argc, char* argv[]) {
                         ) {
 
                         // head objects
-                        //Utils::export_transform_data_to_CSV(filename, "/Player_0 [Remote]/TrackingSpace/CenterEyeAnchor", "head_p0");
-                        //Utils::export_transform_data_to_CSV(filename, "/Player_1 [Remote]/TrackingSpace/CenterEyeAnchor", "head_p1");
-                        //Utils::export_transform_data_to_CSV(filename, "/Player_2 [Remote]/TrackingSpace/CenterEyeAnchor", "head_p2");
-                        //Utils::export_transform_data_to_CSV(filename, "/Player_3 [Remote]/TrackingSpace/CenterEyeAnchor", "head_p3");
+                        Utils::export_transform_data_to_CSV(filename, "/Player_0 [Remote]/TrackingSpace/CenterEyeAnchor", "head_p0");
+                        Utils::export_transform_data_to_CSV(filename, "/Player_1 [Remote]/TrackingSpace/CenterEyeAnchor", "head_p1");
+                        Utils::export_transform_data_to_CSV(filename, "/Player_2 [Remote]/TrackingSpace/CenterEyeAnchor", "head_p2");
+                        Utils::export_transform_data_to_CSV(filename, "/Player_3 [Remote]/TrackingSpace/CenterEyeAnchor", "head_p3");
 
                         // gaze objects
-                        Utils::export_transform_data_to_CSV(filename, "/Player_0 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "gaze_p0");
-                        Utils::export_transform_data_to_CSV(filename, "/Player_1 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "gaze_p1");
-                        Utils::export_transform_data_to_CSV(filename, "/Player_2 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "gaze_p2");
-                        Utils::export_transform_data_to_CSV(filename, "/Player_3 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "gaze_p3");
+                        //Utils::export_transform_data_to_CSV(filename, "/Player_0 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "gaze_p0");
+                        //Utils::export_transform_data_to_CSV(filename, "/Player_1 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "gaze_p1");
+                        //Utils::export_transform_data_to_CSV(filename, "/Player_2 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "gaze_p2");
+                        //Utils::export_transform_data_to_CSV(filename, "/Player_3 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "gaze_p3");
 
 
                     }

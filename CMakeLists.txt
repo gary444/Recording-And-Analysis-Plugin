@@ -143,6 +143,9 @@ if(NOT ANDROID_BUILD)
     add_executable(clean_transform_files ${AnalysisDir}/CleanTransformFiles.cpp ${GAZE_ANALYSIS_FILES})
     target_link_libraries(clean_transform_files ${TEST_LIBRARIES})
 
+    add_executable(remap_transform_ids ${AnalysisDir}/RemapTransformIds.cpp ${GAZE_ANALYSIS_FILES})
+    target_link_libraries(remap_transform_ids ${TEST_LIBRARIES})
+
 endif()
 
 set(COMMON_LIBRARIES PRIVATE glm zlibstatic)
