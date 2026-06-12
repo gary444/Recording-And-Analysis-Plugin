@@ -116,9 +116,6 @@ int main(int argc, char* argv[]) {
                         Utils::export_transform_data_to_CSV(filename, "/Player_2 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "gaze_p2");
                         Utils::export_transform_data_to_CSV(filename, "/Player_3 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "gaze_p3");
 
-                        //Utils::export_transform_data_to_CSV(filename);
-
-
 
                     }
                 }
