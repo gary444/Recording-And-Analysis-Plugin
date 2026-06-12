@@ -190,12 +190,9 @@ int main(int argc, char* argv[]) {
     }
 
 
-    //std::string search_suffix = "experimentcontroller.recordmeta";
     
     std::string search_suffix = ".recordmeta";
     std::string search_string = "excluded";
-    //std::string search_string_2 = "group6_";
-    //std::string search_string_3 = "participant2";
 
     std::cout << "Found input subdirectories:\n" << std::endl;
 
@@ -213,7 +210,6 @@ int main(int argc, char* argv[]) {
 
                 // find recording files inside subdirectory 
                 fs::path subdir = entry.path();
-                //std::vector<std::string> rec_files_from_group;
 
                 for (const auto& subd_entry : fs::directory_iterator(subdir)) {
 
@@ -222,44 +218,25 @@ int main(int argc, char* argv[]) {
                     if (filename.size() >= search_suffix.size() 
                         && filename.compare(filename.size() - search_suffix.size(), search_suffix.size(), search_suffix) == 0 
                         && filename.find(search_string) == std::string::npos 
-                        //&& filename.find(search_string_2) != std::string::npos
-                        //&& filename.find(search_string_3) != std::string::npos
                         ) {
 
-                        // test if exporting transforms for gaze object works (it does, if given .transform file)
-                        //Utils::export_transform_data_to_CSV(filename, "/Player_0 [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject", "head_p0");
 
 
                         fs::path p = subd_entry.path();
                         std::cout << "Found recording file: " << p.replace_extension().string() << std::endl;
-
                         all_rec_files.push_back(p.replace_extension().string());
 
-                        break;
+                        //break;
 
                     }
                 }
 
-                //if (0 != rec_files_from_group.size()) {
-                    // create subdirectory in output dir
-                    //fs::path out_subdirectory = out_directory / entry.path().filename();
-                    //if (!fs::exists(out_subdirectory)) {
-                    //    if (!fs::create_directory(out_subdirectory)) {
-                    //        std::cerr << "Failed to create output subdirectory." << std::endl;
-                    //        return 1;
-                    //    }
-                    //}
 
-                    //gaze_analysis(rec_files_from_group, out_directory.string());
-                    
-
-
-                //}
 
                 ++dirs_searched;
 
             }
-            break;
+            //break;
 
         }
         gaze_analysis(all_rec_files, out_directory.string());

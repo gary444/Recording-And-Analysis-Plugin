@@ -61,7 +61,7 @@ struct TransformDTO{
     float gs[3];
     int act;
     int p_id;
-    int layer;
+    //int layer;
 
     bool friend  operator==(TransformDTO const& lhs, TransformDTO const& rhs)
     {

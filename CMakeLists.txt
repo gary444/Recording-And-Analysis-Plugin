@@ -137,6 +137,9 @@ if(NOT ANDROID_BUILD)
     add_executable(get_transforms_for_gaze_analysis ${AnalysisDir}/GetTransformsForGazeAnalysis.cpp ${GAZE_ANALYSIS_FILES})
     target_link_libraries(get_transforms_for_gaze_analysis ${TEST_LIBRARIES})
 
+    add_executable(write_out_transforms ${AnalysisDir}/WriteOutTransforms.cpp ${GAZE_ANALYSIS_FILES})
+    target_link_libraries(write_out_transforms ${TEST_LIBRARIES})
+
 endif()
 
 set(COMMON_LIBRARIES PRIVATE glm zlibstatic)
