@@ -81,21 +81,32 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
 
     // identify heads of participants
     std::vector<int> participant_head_uuids(4, -1);
+    std::vector<int> participant_gaze_obj_uuids(4, -1);
 
     for (size_t i = 0; i < participant_head_uuids.size(); i++)
     {
         std::stringstream game_object_path_ss;
-        //game_object_path_ss << "/__SCENE__";
-        //game_object_path_ss << (i < 2 ? "/S143TrackingArea" : "/DBLTrackingArea" );
-        game_object_path_ss << "/Player_" << std::to_string(i) << " [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject";
-
+        game_object_path_ss << "/Player_" << std::to_string(i) << " [Remote]/TrackingSpace/CenterEyeAnchor";
         participant_head_uuids[i] = meta_information.get_old_uuid(game_object_path_ss.str());
 
         if (-1 == participant_head_uuids[i]) {
             std::cerr << "Error: Could not find UUID for specified path " << game_object_path_ss.str() << std::endl;
             return;
         }
-        std::cout << "UUID: " << participant_head_uuids[i] << std::endl;
+        std::cout << "Head object UUID: " << participant_head_uuids[i] << std::endl;
+    }
+
+    for (size_t i = 0; i < participant_gaze_obj_uuids.size(); i++)
+    {
+        std::stringstream game_object_path_ss;
+        game_object_path_ss << "/Player_" << std::to_string(i) << " [Remote]/TrackingSpace/CenterEyeAnchor/GazeDirectionObject";
+        participant_gaze_obj_uuids[i] = meta_information.get_old_uuid(game_object_path_ss.str());
+
+        if (-1 == participant_gaze_obj_uuids[i]) {
+            std::cerr << "Error: Could not find UUID for specified path " << game_object_path_ss.str() << std::endl;
+            return;
+        }
+        std::cout << "Gaze object UUID: " << participant_gaze_obj_uuids[i] << std::endl;
     }
 
     //-------------------------------------------------------------------
@@ -132,7 +143,7 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
 
     for (size_t i = 0; i < 4; i++)
     {
-        std::shared_ptr<QuantitativeTransformAnalysisRequest> quantitative_rotation_request = std::make_shared<QuantitativeRotationAnalysisRequest>(participant_head_uuids[i], rotation_analysis_sampling_rate);
+        std::shared_ptr<QuantitativeTransformAnalysisRequest> quantitative_rotation_request = std::make_shared<QuantitativeRotationAnalysisRequest>(participant_gaze_obj_uuids[i], rotation_analysis_sampling_rate);
         manager.add_quantitative_analysis_request(quantitative_rotation_request);
     }
 
@@ -142,7 +153,6 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
     // quantitative gaze queries 
     //------------------------------------------------------------------- 
 
-    /*
     for (size_t i = 0; i < 4; i++)
     {
         for (size_t j = 0; j < 4; j++)
@@ -150,13 +160,13 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
             if (j != i) {
 
                 // note: add final argument to specify that forward direction is positive Z axis!
-                std::shared_ptr<QuantitativeTransformAnalysisRequest> gaze_request = std::make_shared<QuantitativeGazeAnalysisRequest>(participant_head_uuids[i], participant_head_uuids[j], rotation_analysis_sampling_rate);
+                // a (first argument) is gazer, b (second argument) is gaze target
+                std::shared_ptr<QuantitativeTransformAnalysisRequest> gaze_request = std::make_shared<QuantitativeGazeAnalysisRequest>(participant_gaze_obj_uuids[i], participant_head_uuids[j], rotation_analysis_sampling_rate);
 
                 manager.add_quantitative_analysis_request(gaze_request);
             }
         }
     }
-    */
     manager.process_quantitative_analysis_requests_for_all_files();
 
 
