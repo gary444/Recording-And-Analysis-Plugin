@@ -4,6 +4,7 @@
 
 #include "QuantitativeGazeAnalysisRequest.h"
 
+// a is gazer, b is gaze target
 QuantitativeGazeAnalysisRequest::QuantitativeGazeAnalysisRequest(int id_a, int id_b, float t_sampling_rate)
         : id_a(id_a), id_b(id_b), QuantitativeTransformAnalysisRequest(t_sampling_rate) {
 
@@ -34,7 +35,7 @@ void QuantitativeGazeAnalysisRequest::process_request(std::shared_ptr<TransformD
 
        if(current_t - last_value_time > 1.0f/temporal_sampling_rate){
 
-           //glm::vec3 dir = current_b.global_position - current_a.global_position;
+           // get position of b in a's coordinate system
            glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), current_a.global_scale);
            glm::mat4 translate = glm::translate(glm::identity<glm::mat4>(), current_a.global_position);
            glm::mat4 rotate = glm::toMat4(current_a.global_rotation);

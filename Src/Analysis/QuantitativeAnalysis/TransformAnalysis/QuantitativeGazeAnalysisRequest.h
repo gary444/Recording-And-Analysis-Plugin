@@ -23,6 +23,7 @@ private:
     TransformData last_b;
 
 public:
+    // a is gazer, b is gaze target
     QuantitativeGazeAnalysisRequest(int id_a, int id_b, float t_sampling_rate);
 
     void update_parameters(MetaInformation& original_meta_file, MetaInformation& new_meta_file) override;
