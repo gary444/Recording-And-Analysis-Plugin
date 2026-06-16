@@ -8,6 +8,7 @@
 #include "Analysis/IntervalAnalysis/TransformAnalysis/IntervalDistanceAnalysisRequest.h"
 #include "Analysis/IntervalAnalysis/TransformAnalysis/IntervalContainmentAnalysisRequest.h"
 #include "Analysis/IntervalAnalysis/TransformAnalysis/IntervalGazeAnalysisRequest.h"
+#include "Analysis/IntervalAnalysis/TransformAnalysis/IntervalGazeIntersectionAnalysisRequest.h"
 #include "Analysis/IntervalAnalysis/TransformAnalysis/IntervalRotationAnalysisRequest.h"
 #include "Analysis/IntervalAnalysis/SoundAnalysis/IntervalSoundActivationAnalysisRequest.h"
 #include "Analysis/IntervalAnalysis/TransformAnalysis/IntervalVelocityAnalysisRequest.h"

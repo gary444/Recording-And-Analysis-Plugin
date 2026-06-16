@@ -9,7 +9,8 @@
 #include <vector>
 
 enum TransformAnalysisType{
-    ContainmentAnalysis, DistanceAnalysis, GazeAnalysis, RotationAnalysis, VelocityAnalysis, PositionAdjustmentAnalysis
+    ContainmentAnalysis, DistanceAnalysis, GazeAnalysis, RotationAnalysis, VelocityAnalysis, PositionAdjustmentAnalysis,
+    GazeIntersectionAnalysis
 };
 
 struct TimeBasedValue{

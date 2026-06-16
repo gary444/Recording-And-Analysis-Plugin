@@ -33,6 +33,27 @@ extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeAnalysisReques
     manager.add_interval_analysis_request(request);
 }
 
+extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeIntersectionSphereRequest(int analysis_id, int id_a, int id_b, int axis, float radius) {
+    AnalysisManager& manager = AnalysisManager::getInstance();
+    auto request = std::make_shared<IntervalGazeIntersectionAnalysisRequest>(
+        id_a, id_b, axis, IntersectionSphere, radius, glm::vec3{0.0f, 0.0f, 0.0f}, 0.0f, 0);
+    manager.add_interval_analysis_request(request);
+}
+
+extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeIntersectionCuboidRequest(int analysis_id, int id_a, int id_b, int axis, float hx, float hy, float hz) {
+    AnalysisManager& manager = AnalysisManager::getInstance();
+    auto request = std::make_shared<IntervalGazeIntersectionAnalysisRequest>(
+        id_a, id_b, axis, IntersectionCuboid, 0.0f, glm::vec3{hx, hy, hz}, 0.0f, 0);
+    manager.add_interval_analysis_request(request);
+}
+
+extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeIntersectionCapsuleRequest(int analysis_id, int id_a, int id_b, int axis, float radius, float half_height, int capsule_axis) {
+    AnalysisManager& manager = AnalysisManager::getInstance();
+    auto request = std::make_shared<IntervalGazeIntersectionAnalysisRequest>(
+        id_a, id_b, axis, IntersectionCapsule, radius, glm::vec3{0.0f, 0.0f, 0.0f}, half_height, capsule_axis);
+    manager.add_interval_analysis_request(request);
+}
+
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddRotationAnalysisRequest(int analysis_id, int id_a, float temporal_search_interval, float rotation_threshold) {
     AnalysisManager& manager = AnalysisManager::getInstance();
     std::shared_ptr<IntervalRotationAnalysisRequest> request = std::make_shared<IntervalRotationAnalysisRequest>(id_a, temporal_search_interval, rotation_threshold);

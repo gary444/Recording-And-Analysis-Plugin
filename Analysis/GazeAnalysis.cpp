@@ -38,11 +38,13 @@
 
 #include "Analysis/AnalysisManager.h"
 #include "Analysis/IntervalAnalysis/TransformAnalysis/IntervalPositionAdjustmentAnalysisRequest.h"
+#include "Analysis/IntervalAnalysis/TransformAnalysis/IntervalGazeIntersectionAnalysisRequest.h"
 #include "Analysis/QuantitativeAnalysis/TransformAnalysis/QuantitativeTramsformAnalysisRequest.h"
 #include "Analysis/QuantitativeAnalysis/TransformAnalysis/QuantitativeVelocityAnalysisRequest.h"
 #include "Analysis/QuantitativeAnalysis/TransformAnalysis/QuantitativeGazeAnalysisRequest.h"
 #include "Analysis/QuantitativeAnalysis/TransformAnalysis/QuantitativeDistanceAnalysisRequest.h"
 #include "Analysis/QuantitativeAnalysis/TransformAnalysis/QuantitativeRotationAnalysisRequest.h"
+
 #include <filesystem>
 #include <string>
 
@@ -59,7 +61,12 @@ using std::chrono::milliseconds;
 #include <cmath>
 #include <iostream>
 
+#define INTERSECTION_BASED_ANALYSIS
+
+
 #define USE_HEAD_ORIENTATION_ONLY
+
+
 
 void gaze_analysis(std::vector<std::string> rec_files, const std::string& output_dir) {
     //void gaze_analysis(std::string rec_file, const std::string& output_dir) {
@@ -114,30 +121,43 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
         std::cout << "Gaze object UUID: " << participant_gaze_obj_uuids[i] << std::endl;
     }
 #endif
-    //-------------------------------------------------------------------
-    // gaze interval queries 
-    //------------------------------------------------------------------- 
 
-    float gaze_cone_height = 10.0f;
-    float gaze_cone_fov_angle = 50.0f;
 
-    /*
+
+#ifdef INTERSECTION_BASED_ANALYSIS
+
     for (size_t i = 0; i < 4; i++)
     {
         for (size_t j = 0; j < 4; j++)
         {
             if (j != i) {
 
-                // note: add final argument to specify that forward direction is positive Z axis!
-                std::shared_ptr<IntervalGazeAnalysisRequest> gaze_request = std::make_shared<IntervalGazeAnalysisRequest>(participant_head_uuids[i], participant_head_uuids[j], gaze_cone_fov_angle, gaze_cone_height, 1);
+                std::shared_ptr<IntervalGazeIntersectionAnalysisRequest> interval_rotation_request = std::make_shared<IntervalGazeIntersectionAnalysisRequest>(
+#ifdef USE_HEAD_ORIENTATION_ONLY
+                    participant_head_uuids[i],
+#else            
+                    participant_gaze_obj_uuids[i],
+#endif
+                    participant_head_uuids[j],
+                    1, // view direction: z axis
+                    IntersectionSphere,
+                    0.5f, // radius,
+                    glm::vec3(0), //glm::vec3 half_extents,
+                    0.f, //float capsule_half_height,
+                    1//int capsule_axis
+                );
 
-                manager.add_interval_analysis_request(gaze_request);
+                manager.add_interval_analysis_request(interval_rotation_request);
+
+
             }
         }
     }
-    manager.process_interval_analysis_requests_for_all_files();
-    */
 
+    manager.process_interval_analysis_requests_for_all_files();
+
+
+#else 
 
     //-------------------------------------------------------------------
     // quantitative head rotation queries 
@@ -179,7 +199,10 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
             }
         }
     }
+
     manager.process_quantitative_analysis_requests_for_all_files();
+
+#endif
 
 
 }
