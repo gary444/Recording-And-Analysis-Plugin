@@ -59,6 +59,8 @@ using std::chrono::milliseconds;
 #include <cmath>
 #include <iostream>
 
+#define USE_HEAD_ORIENTATION_ONLY
+
 void gaze_analysis(std::vector<std::string> rec_files, const std::string& output_dir) {
     //void gaze_analysis(std::string rec_file, const std::string& output_dir) {
 
@@ -81,7 +83,6 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
 
     // identify heads of participants
     std::vector<int> participant_head_uuids(4, -1);
-    std::vector<int> participant_gaze_obj_uuids(4, -1);
 
     for (size_t i = 0; i < participant_head_uuids.size(); i++)
     {
@@ -96,6 +97,10 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
         std::cout << "Head object UUID: " << participant_head_uuids[i] << std::endl;
     }
 
+
+#ifndef USE_HEAD_ORIENTATION_ONLY
+    std::vector<int> participant_gaze_obj_uuids(4, -1);
+
     for (size_t i = 0; i < participant_gaze_obj_uuids.size(); i++)
     {
         std::stringstream game_object_path_ss;
@@ -108,7 +113,7 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
         }
         std::cout << "Gaze object UUID: " << participant_gaze_obj_uuids[i] << std::endl;
     }
-
+#endif
     //-------------------------------------------------------------------
     // gaze interval queries 
     //------------------------------------------------------------------- 
@@ -143,7 +148,11 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
 
     for (size_t i = 0; i < 4; i++)
     {
+#ifdef USE_HEAD_ORIENTATION_ONLY
+        std::shared_ptr<QuantitativeTransformAnalysisRequest> quantitative_rotation_request = std::make_shared<QuantitativeRotationAnalysisRequest>(participant_head_uuids[i], rotation_analysis_sampling_rate);
+#else        
         std::shared_ptr<QuantitativeTransformAnalysisRequest> quantitative_rotation_request = std::make_shared<QuantitativeRotationAnalysisRequest>(participant_gaze_obj_uuids[i], rotation_analysis_sampling_rate);
+#endif        
         manager.add_quantitative_analysis_request(quantitative_rotation_request);
     }
 
@@ -161,8 +170,11 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
 
                 // note: add final argument to specify that forward direction is positive Z axis!
                 // a (first argument) is gazer, b (second argument) is gaze target
+#ifdef USE_HEAD_ORIENTATION_ONLY
+                std::shared_ptr<QuantitativeTransformAnalysisRequest> gaze_request = std::make_shared<QuantitativeGazeAnalysisRequest>(participant_head_uuids[i], participant_head_uuids[j], rotation_analysis_sampling_rate);
+#else
                 std::shared_ptr<QuantitativeTransformAnalysisRequest> gaze_request = std::make_shared<QuantitativeGazeAnalysisRequest>(participant_gaze_obj_uuids[i], participant_head_uuids[j], rotation_analysis_sampling_rate);
-
+#endif
                 manager.add_quantitative_analysis_request(gaze_request);
             }
         }
