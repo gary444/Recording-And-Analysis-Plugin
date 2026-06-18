@@ -64,7 +64,7 @@ using std::chrono::milliseconds;
 #define INTERSECTION_BASED_ANALYSIS
 
 
-#define USE_HEAD_ORIENTATION_ONLY
+//#define USE_HEAD_ORIENTATION_ONLY
 
 
 
@@ -123,6 +123,13 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
 #endif
 
 
+    // manually defined workspace (table) and description positions, set from Unity transforms
+    glm::vec3 workspace_position{ -0.372 , 0.5, 0.0};
+    glm::vec3 workspace_scale{ 1.7, 1, 1.2 };
+    glm::vec3 description_position{ 1.478 , 1.85, 0.0 };
+    glm::vec3 description_scale{ 0.1, 2.4, 1.68 };
+
+
 
 #ifdef INTERSECTION_BASED_ANALYSIS
 
@@ -132,7 +139,8 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
         {
             if (j != i) {
 
-                std::shared_ptr<IntervalGazeIntersectionAnalysisRequest> interval_rotation_request = std::make_shared<IntervalGazeIntersectionAnalysisRequest>(
+                // check gaze to other participants
+                std::shared_ptr<IntervalGazeIntersectionAnalysisRequest> interval_intersection_request = std::make_shared<IntervalGazeIntersectionAnalysisRequest>(
 #ifdef USE_HEAD_ORIENTATION_ONLY
                     participant_head_uuids[i],
 #else            
@@ -141,17 +149,55 @@ void gaze_analysis(std::vector<std::string> rec_files, const std::string& output
                     participant_head_uuids[j],
                     1, // view direction: z axis
                     IntersectionSphere,
-                    0.5f, // radius,
+                    0.3f, // radius,
                     glm::vec3(0), //glm::vec3 half_extents,
-                    0.f, //float capsule_half_height,
-                    1//int capsule_axis
+                    0.25f, //float capsule_half_height,
+                    1,//int capsule_axis
+                    -0.36f // float capsule_offset_along_axis
                 );
 
-                manager.add_interval_analysis_request(interval_rotation_request);
-
+                manager.add_interval_analysis_request(interval_intersection_request);
 
             }
         }
+
+        // check gaze at workspace / table
+        std::shared_ptr<IntervalGazeStaticIntersectionAnalysisRequest> table_interval_intersection_request = std::make_shared<IntervalGazeStaticIntersectionAnalysisRequest>(
+#ifdef USE_HEAD_ORIENTATION_ONLY
+            participant_head_uuids[i],
+#else            
+            participant_gaze_obj_uuids[i],
+#endif                
+            1, // view direction: z axis
+            IntersectionCuboid,
+            0.0f, 
+            glm::vec3(0.5),
+            0.0f, 0, 0.0f, // capsule data, not relevant here
+            workspace_position, glm::quat(glm::vec3(0)), workspace_scale,
+            "Workspace"
+        );
+        manager.add_interval_analysis_request(table_interval_intersection_request);
+
+
+
+        // check gaze at description
+        std::shared_ptr<IntervalGazeStaticIntersectionAnalysisRequest> description_interval_intersection_request = std::make_shared<IntervalGazeStaticIntersectionAnalysisRequest>(
+#ifdef USE_HEAD_ORIENTATION_ONLY
+            participant_head_uuids[i],
+#else            
+            participant_gaze_obj_uuids[i],
+#endif                
+            1, // view direction: z axis
+            IntersectionCuboid,
+            0.0f,
+            glm::vec3(0.5),
+            0.0f, 0, 0.0f, // capsule data, not relevant here
+            description_position, glm::quat(glm::vec3(0)), description_scale,
+            "ScenarioDescription"
+        );
+
+            manager.add_interval_analysis_request(description_interval_intersection_request);
+
     }
 
     manager.process_interval_analysis_requests_for_all_files();

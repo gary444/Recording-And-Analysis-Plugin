@@ -6,12 +6,7 @@
 #define RECORDINGPLUGIN_INTERVALGAZEINTERSECTIONANALYSISREQUEST_H
 
 #include "IntervalTransformAnalysisRequest.h"
-
-enum GazeIntersectionShapeType {
-    IntersectionSphere  = 0,
-    IntersectionCuboid  = 1,
-    IntersectionCapsule = 2
-};
+#include "GazeIntersectionShapes.h"
 
 // Tests whether the gaze ray emitted by id_a intersects a shape positioned and
 // oriented by id_b's pose. Produces time intervals during which the ray hits.
@@ -33,6 +28,8 @@ private:
     // Capsule axis in id_b's local frame: 0=X, 1=Y, 2=Z
     int capsule_axis;
 
+    float capsule_offset_along_axis;
+
     bool present_a = false;
     bool present_b = false;
 
@@ -43,14 +40,6 @@ private:
 
     glm::vec3 compute_ray_direction() const;
 
-    // Returns true if the ray hits the given sphere (handles ray-origin-inside-sphere).
-    bool ray_hits_sphere(const glm::vec3& ray_origin, const glm::vec3& ray_dir,
-                         const glm::vec3& center, float r) const;
-
-    bool intersects_sphere (const glm::vec3& ray_origin, const glm::vec3& ray_dir) const;
-    bool intersects_cuboid (const glm::vec3& ray_origin, const glm::vec3& ray_dir) const;
-    bool intersects_capsule(const glm::vec3& ray_origin, const glm::vec3& ray_dir) const;
-
 public:
     // Use the shape-type enum plus the full parameter set; unused parameters are ignored.
     // Convenience wrappers are provided as free functions in the endpoint layer.
@@ -59,7 +48,9 @@ public:
         float radius,
         glm::vec3 half_extents,
         float capsule_half_height,
-        int capsule_axis);
+        int capsule_axis,
+        float capsule_offset_along_axis
+        );
 
     void process_request(std::shared_ptr<TransformData> t_data,
                          std::shared_ptr<SoundData> s_data) override;

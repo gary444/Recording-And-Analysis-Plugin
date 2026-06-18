@@ -36,21 +36,54 @@ extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeAnalysisReques
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeIntersectionSphereRequest(int analysis_id, int id_a, int id_b, int axis, float radius) {
     AnalysisManager& manager = AnalysisManager::getInstance();
     auto request = std::make_shared<IntervalGazeIntersectionAnalysisRequest>(
-        id_a, id_b, axis, IntersectionSphere, radius, glm::vec3{0.0f, 0.0f, 0.0f}, 0.0f, 0);
+        id_a, id_b, axis, IntersectionSphere, radius, glm::vec3{0.0f, 0.0f, 0.0f}, 0.0f, 0, 0.0f);
     manager.add_interval_analysis_request(request);
 }
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeIntersectionCuboidRequest(int analysis_id, int id_a, int id_b, int axis, float hx, float hy, float hz) {
     AnalysisManager& manager = AnalysisManager::getInstance();
     auto request = std::make_shared<IntervalGazeIntersectionAnalysisRequest>(
-        id_a, id_b, axis, IntersectionCuboid, 0.0f, glm::vec3{hx, hy, hz}, 0.0f, 0);
+        id_a, id_b, axis, IntersectionCuboid, 0.0f, glm::vec3{hx, hy, hz}, 0.0f, 0, 0.0f);
     manager.add_interval_analysis_request(request);
 }
 
-extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeIntersectionCapsuleRequest(int analysis_id, int id_a, int id_b, int axis, float radius, float half_height, int capsule_axis) {
+extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeIntersectionCapsuleRequest(int analysis_id, int id_a, int id_b, int axis, float radius, float half_height, int capsule_axis, float offset_along_capsule) {
     AnalysisManager& manager = AnalysisManager::getInstance();
     auto request = std::make_shared<IntervalGazeIntersectionAnalysisRequest>(
-        id_a, id_b, axis, IntersectionCapsule, radius, glm::vec3{0.0f, 0.0f, 0.0f}, half_height, capsule_axis);
+        id_a, id_b, axis, IntersectionCapsule, radius, glm::vec3{0.0f, 0.0f, 0.0f}, half_height, capsule_axis, offset_along_capsule);
+    manager.add_interval_analysis_request(request);
+}
+
+extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeStaticIntersectionSphereRequest(int analysis_id, int id_a, int axis, float radius, float* position, float* rotation, float* scale, char* label, int label_length) {
+    AnalysisManager& manager = AnalysisManager::getInstance();
+    auto request = std::make_shared<IntervalGazeStaticIntersectionAnalysisRequest>(
+        id_a, axis, IntersectionSphere, radius, glm::vec3{0.0f, 0.0f, 0.0f}, 0.0f, 0, 0.0f,
+        glm::vec3{position[0], position[1], position[2]},
+        glm::quat{rotation[0], rotation[1], rotation[2], rotation[3]},
+        glm::vec3{scale[0], scale[1], scale[2]},
+        std::string(label, label_length));
+    manager.add_interval_analysis_request(request);
+}
+
+extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeStaticIntersectionCuboidRequest(int analysis_id, int id_a, int axis, float hx, float hy, float hz, float* position, float* rotation, float* scale, char* label, int label_length) {
+    AnalysisManager& manager = AnalysisManager::getInstance();
+    auto request = std::make_shared<IntervalGazeStaticIntersectionAnalysisRequest>(
+        id_a, axis, IntersectionCuboid, 0.0f, glm::vec3{hx, hy, hz}, 0.0f, 0, 0.0f,
+        glm::vec3{position[0], position[1], position[2]},
+        glm::quat{rotation[0], rotation[1], rotation[2], rotation[3]},
+        glm::vec3{scale[0], scale[1], scale[2]},
+        std::string(label, label_length));
+    manager.add_interval_analysis_request(request);
+}
+
+extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API AddGazeStaticIntersectionCapsuleRequest(int analysis_id, int id_a, int axis, float radius, float half_height, int capsule_axis, float offset_along_capsule, float* position, float* rotation, float* scale, char* label, int label_length) {
+    AnalysisManager& manager = AnalysisManager::getInstance();
+    auto request = std::make_shared<IntervalGazeStaticIntersectionAnalysisRequest>(
+        id_a, axis, IntersectionCapsule, radius, glm::vec3{0.0f, 0.0f, 0.0f}, half_height, capsule_axis, offset_along_capsule,
+        glm::vec3{position[0], position[1], position[2]},
+        glm::quat{rotation[0], rotation[1], rotation[2], rotation[3]},
+        glm::vec3{scale[0], scale[1], scale[2]},
+        std::string(label, label_length));
     manager.add_interval_analysis_request(request);
 }
 

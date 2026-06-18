@@ -10,7 +10,7 @@
 
 enum TransformAnalysisType{
     ContainmentAnalysis, DistanceAnalysis, GazeAnalysis, RotationAnalysis, VelocityAnalysis, PositionAdjustmentAnalysis,
-    GazeIntersectionAnalysis
+    GazeIntersectionAnalysis, GazeStaticIntersectionAnalysis
 };
 
 struct TimeBasedValue{
